@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/SANSKRIT_VIRU/static/css/main.66d8b0e4.css",
+    "main.js": "/SANSKRIT_VIRU/static/js/main.141e7dfe.js",
+    "index.html": "/SANSKRIT_VIRU/index.html",
+    "main.66d8b0e4.css.map": "/SANSKRIT_VIRU/static/css/main.66d8b0e4.css.map",
+    "main.141e7dfe.js.map": "/SANSKRIT_VIRU/static/js/main.141e7dfe.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.66d8b0e4.css",
+    "static/js/main.141e7dfe.js"
+  ]
+}
