@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VidyaSetu — App Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --saf:#D4580A; --saf2:#FFF0D6; --saf3:#A03A00;
+  --grn:#2A6B4A; --grn2:#E8F5EE;
+  --dark:#1A0A00; --mid:#6B3A1A; --cream:#FFFDF8;
+  --grey:#F5F0EB; --border:#E8D5B8; --white:#FFFFFF;
+  --red:#C0392B; --red2:#FFF0EE;
+  --blue:#1A5C8A; --blue2:#EAF3FB;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:#1A0A00;display:flex;flex-direction:column;align-items:center;min-height:100vh;padding:20px;}
+
+/* OUTER WRAPPER */
+.outer{width:100%;max-width:420px;}
+
+/* TOP NAV */
+.top-nav{display:flex;align-items:center;justify-content:space-between;padding:12px 0;margin-bottom:12px;}
+.nav-logo{font-family:'Playfair Display',serif;font-size:20px;color:var(--saf);}
+.nav-sub{font-size:10px;color:#7A5040;letter-spacing:1px;text-transform:uppercase;}
+.role-pills{display:flex;gap:8px;}
+.role-pill{padding:6px 14px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid #5A3A2A;color:#fff;background:transparent;transition:all .2s;}
+.role-pill.active-s{background:var(--saf);color:#fff;border-color:var(--saf);}
+.role-pill.active-t{background:var(--grn);color:#fff;border-color:var(--grn);}
+
+/* PHONE FRAME */
+.phone{background:var(--white);border-radius:28px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.6);border:2px solid #3A1A0A;position:relative;min-height:720px;}
+
+/* STATUS BAR */
+.status-bar{background:var(--dark);padding:10px 20px 8px;display:flex;justify-content:space-between;align-items:center;}
+.status-time{color:#C8A87A;font-size:12px;font-weight:600;}
+.status-icons{color:#C8A87A;font-size:11px;gap:6px;display:flex;}
+
+/* APP HEADER */
+.app-header{padding:14px 18px 12px;display:flex;align-items:center;justify-content:space-between;}
+.app-header.saf{background:var(--saf);}
+.app-header.grn{background:var(--grn);}
+.app-header-left{display:flex;align-items:center;gap:10px;}
+.back-btn{color:#fff;font-size:18px;cursor:pointer;opacity:.8;line-height:1;}
+.app-title{color:#fff;font-weight:600;font-size:15px;}
+.app-title-sub{color:rgba(255,255,255,.7);font-size:10px;margin-top:1px;}
+.app-avatar{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:600;}
+
+/* SCREEN */
+.screen{display:none;flex-direction:column;}
+.screen.active{display:flex;}
+
+/* SCROLLABLE BODY */
+.screen-body{overflow-y:auto;flex:1;background:var(--grey);}
+
+/* ── LOGIN ── */
+.login-bg{background:linear-gradient(160deg,var(--dark) 0%,#3A1500 100%);padding:40px 24px 32px;text-align:center;}
+.login-logo{font-family:'Playfair Display',serif;font-size:36px;color:var(--saf);margin-bottom:4px;}
+.login-tagline{font-size:12px;color:#C8A87A;letter-spacing:1px;}
+.login-college{font-size:11px;color:#7A5040;margin-top:6px;}
+.login-form{padding:28px 20px;}
+.form-label{font-size:11px;font-weight:600;color:var(--mid);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;display:block;}
+.form-input{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:'DM Sans',sans-serif;background:var(--white);color:var(--dark);margin-bottom:16px;outline:none;}
+.form-input:focus{border-color:var(--saf);}
+.login-btn{width:100%;padding:13px;border:none;border-radius:10px;font-size:15px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;margin-top:4px;transition:opacity .2s;}
+.login-btn.saf{background:var(--saf);color:#fff;}
+.login-btn.grn{background:var(--grn);color:#fff;}
+.login-btn:hover{opacity:.88;}
+.login-note{text-align:center;font-size:11px;color:#B09080;margin-top:16px;}
+
+/* ── CARDS ── */
+.card{background:var(--white);border-radius:14px;margin:12px 14px 0;border:1px solid var(--border);overflow:hidden;}
+.card-header{padding:12px 14px;display:flex;align-items:center;justify-content:space-between;}
+.card-title{font-weight:600;font-size:13px;color:var(--dark);}
+.card-sub{font-size:11px;color:#9A8070;margin-top:1px;}
+.card-body{padding:0 14px 14px;}
+
+/* ── GREETING ── */
+.greeting-bar{background:var(--saf);padding:16px 18px;}
+.greet-text{color:#fff;font-size:13px;opacity:.8;}
+.greet-name{color:#fff;font-size:20px;font-weight:700;margin-top:2px;}
+.greet-info{color:rgba(255,255,255,.7);font-size:11px;margin-top:4px;}
+.greeting-bar.grn-bar{background:var(--grn);}
+
+/* ── TIMETABLE ROWS ── */
+.tt-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--grey);}
+.tt-row:last-child{border-bottom:none;}
+.tt-time{font-size:11px;color:#9A8070;width:52px;flex-shrink:0;line-height:1.4;}
+.tt-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.tt-dot.locked{background:#D8CCC0;}
+.tt-dot.active{background:var(--grn);}
+.tt-dot.ended{background:var(--saf);}
+.tt-dot.exam{background:#E07820;}
+.tt-info{flex:1;}
+.tt-subj{font-size:13px;font-weight:500;color:var(--dark);}
+.tt-batch{font-size:11px;color:#9A8070;}
+.tt-btn{padding:5px 12px;border-radius:8px;font-size:11px;font-weight:600;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;}
+.btn-locked{background:#EDE8E2;color:#AFA098;}
+.btn-join{background:var(--grn);color:#fff;}
+.btn-watch{background:var(--saf2);color:var(--saf3);}
+.btn-exam{background:#FFF3E0;color:#B35A00;}
+.btn-start{background:var(--grn);color:#fff;}
+
+/* ── STAT ROW ── */
+.stat-row{display:flex;gap:0;margin:12px 14px 0;}
+.stat-box{flex:1;background:var(--white);padding:12px 10px;text-align:center;border:1px solid var(--border);}
+.stat-box:first-child{border-radius:12px 0 0 12px;}
+.stat-box:last-child{border-radius:0 12px 12px 0;}
+.stat-box+.stat-box{border-left:none;}
+.stat-big{font-size:20px;font-weight:700;}
+.stat-big.saf{color:var(--saf);}
+.stat-big.grn{color:var(--grn);}
+.stat-lbl{font-size:10px;color:#9A8070;text-transform:uppercase;letter-spacing:.5px;margin-top:2px;}
+
+/* ── VIDEO PLAYER ── */
+.video-player{background:#0A0A0A;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;position:relative;}
+.play-btn{width:52px;height:52px;background:rgba(212,88,10,.9);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.play-icon{color:#fff;font-size:20px;margin-left:3px;}
+.video-bar{background:#1A1A1A;padding:10px 14px;display:flex;align-items:center;gap:10px;}
+.progress-track{flex:1;height:3px;background:#3A3A3A;border-radius:2px;position:relative;}
+.progress-fill{width:35%;height:100%;background:var(--saf);border-radius:2px;}
+.vid-time{color:#9A9A9A;font-size:11px;}
+.video-info{padding:14px;}
+.video-title{font-size:14px;font-weight:600;color:var(--dark);}
+.video-meta{font-size:11px;color:#9A8070;margin-top:4px;}
+.attend-badge{display:inline-block;margin-top:8px;padding:4px 10px;background:var(--grn2);color:var(--grn);border-radius:6px;font-size:11px;font-weight:600;}
+
+/* ── LIVE CLKSS ── */
+.live-bg{background:#0D0D0D;aspect-ratio:4/3;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;position:relative;}
+.live-badge{position:absolute;top:10px;left:10px;background:#C0392B;color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;letter-spacing:1px;}
+.teacher-avatar-lg{width:70px;height:70px;background:var(--grn);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:28px;font-weight:700;border:3px solid rgba(255,255,255,.2);}
+.live-name{color:#fff;font-size:13px;font-weight:600;}
+.live-sub{color:#9A9A9A;font-size:11px;}
+.student-thumbs{display:flex;gap:-4px;margin-top:6px;}
+.thumb{width:28px;height:28px;border-radius:50%;background:var(--saf);border:2px solid #1A1A1A;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:700;margin-left:-6px;}
+.thumb:first-child{margin-left:0;}
+.live-count{color:#7A7A7A;font-size:11px;margin-top:4px;}
+.live-controls{background:#1A1A1A;padding:12px 14px;display:flex;justify-content:center;gap:16px;}
+.live-btn{width:40px;height:40px;border-radius:50%;border:none;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;}
+.live-btn.mute{background:#2A2A2A;color:#fff;}
+.live-btn.cam{background:#2A2A2A;color:#fff;}
+.live-btn.end{background:var(--red);color:#fff;}
+.live-btn.chat{background:#2A2A2A;color:#fff;}
+
+/* ── EXAM ── */
+.exam-header{background:var(--saf);padding:14px 18px;}
+.exam-title-lg{color:#fff;font-size:14px;font-weight:600;}
+.exam-meta{color:rgba(255,255,255,.75);font-size:11px;margin-top:3px;}
+.timer-box{background:rgba(0,0,0,.2);padding:6px 12px;border-radius:8px;color:#fff;font-size:13px;font-weight:700;display:inline-block;margin-top:8px;}
+.q-box{background:var(--white);margin:10px 14px;border-radius:12px;padding:14px;border:1px solid var(--border);}
+.q-num{font-size:10px;font-weight:700;color:var(--saf);text-transform:uppercase;letter-spacing:.5px;}
+.q-text{font-size:13px;font-weight:500;color:var(--dark);margin-top:6px;line-height:1.5;}
+.q-options{margin-top:10px;display:flex;flex-direction:column;gap:7px;}
+.q-opt{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;transition:all .15s;}
+.q-opt.selected{border-color:var(--grn);background:var(--grn2);}
+.q-opt-circle{width:18px;height:18px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.q-opt.selected .q-opt-circle{border-color:var(--grn);background:var(--grn);}
+.q-opt.selected .q-opt-circle::after{content:'✓';color:#fff;font-size:10px;}
+.q-opt-label{font-size:13px;color:var(--dark);}
+.submit-bar{padding:14px;background:var(--white);border-top:1px solid var(--border);margin-top:10px;}
+.submit-btn{width:100%;padding:12px;background:var(--saf);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;}
+
+/* ── RESULTS ── */
+.result-hero{background:linear-gradient(135deg,var(--grn),#1A4A30);padding:24px 20px;text-align:center;}
+.result-score{font-size:52px;font-weight:700;color:#fff;}
+.result-outof{font-size:14px;color:rgba(255,255,255,.6);}
+.result-label{font-size:12px;color:rgba(255,255,255,.75);margin-top:6px;text-transform:uppercase;letter-spacing:1px;}
+.result-badge{display:inline-block;margin-top:10px;padding:5px 14px;background:rgba(255,255,255,.2);color:#fff;border-radius:12px;font-size:12px;font-weight:600;}
+.ans-row{display:flex;gap:10px;padding:10px 14px;border-bottom:1px solid var(--grey);}
+.ans-q{font-size:12px;color:var(--dark);flex:1;line-height:1.4;}
+.ans-status{font-size:16px;flex-shrink:0;}
+
+/* ── TEACHER UPLOAD ── */
+.upload-zone{border:2px dashed var(--border);border-radius:12px;padding:24px;text-align:center;background:var(--grey);cursor:pointer;transition:border-color .2s;}
+.upload-zone:hover{border-color:var(--grn);}
+.upload-icon{font-size:32px;margin-bottom:8px;}
+.upload-text{font-size:13px;color:var(--mid);}
+.upload-sub{font-size:11px;color:#B09080;margin-top:4px;}
+.form-row{margin-bottom:12px;}
+
+/* ── ATTENDANCE ── */
+.att-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--grey);}
+.att-row:last-child{border-bottom:none;}
+.att-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0;}
+.att-name{font-size:13px;font-weight:500;color:var(--dark);}
+.att-sub{font-size:11px;color:#9A8070;}
+.att-pct{font-size:13px;font-weight:700;margin-left:auto;}
+.att-bar-wrap{width:60px;height:5px;background:var(--grey);border-radius:3px;margin-left:6px;}
+.att-bar-fill{height:100%;border-radius:3px;}
+
+/* ── BOTTOM NAV ── */
+.bottom-nav{background:var(--white);border-top:1px solid var(--border);display:flex;padding:8px 0 10px;}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 0;transition:opacity .15s;}
+.nav-item.active .nav-icon{color:var(--saf);}
+.nav-item.active .nav-label{color:var(--saf);}
+.nav-item.active-g .nav-icon{color:var(--grn);}
+.nav-item.active-g .nav-label{color:var(--grn);}
+.nav-icon{font-size:20px;color:#C0B0A0;}
+.nav-label{font-size:10px;color:#C0B0A0;font-weight:500;}
+
+/* ── NOTIFICATION BADGE ── */
+.notif{position:relative;display:inline-block;}
+.badge{position:absolute;top:-4px;right:-6px;width:14px;height:14px;background:var(--red);border-radius:50%;color:#fff;font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center;border:1.5px solid #fff;}
+
+/* ── SECTION LABEL ── */
+.section-lbl{padding:14px 14px 6px;font-size:10px;font-weight:700;color:#B09080;text-transform:uppercase;letter-spacing:1px;}
+
+/* ── UPLOAD PROGRESS ── */
+.upload-progress{background:var(--white);border-radius:10px;padding:12px 14px;border:1px solid var(--border);margin:10px 14px 0;}
+.up-name{font-size:13px;font-weight:500;color:var(--dark);}
+.up-meta{font-size:11px;color:#9A8070;margin-top:2px;}
+.up-track{height:4px;background:var(--grey);border-radius:2px;margin-top:8px;}
+.up-fill{height:100%;background:var(--grn);border-radius:2px;width:70%;}
+
+/* quick summary pills */
+.summary-pills{display:flex;gap:8px;flex-wrap:wrap;padding:0 14px 14px;}
+.spill{padding:6px 12px;border-radius:8px;font-size:11px;font-weight:600;}
+
+/* TRANSITION */
+.screen{animation:fadeIn .2s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+
+<div class="outer">
+  <div class="top-nav">
+    <div>
+      <div class="nav-logo">VidyaSetu</div>
+      <div class="nav-sub">App Prototype</div>
+    </div>
+    <div class="role-pills">
+      <div class="role-pill active-s" onclick="setRole('student')">Student</div>
+      <div class="role-pill" onclick="setRole('teacher')">Teacher</div>
+    </div>
+  </div>
+
+  <div class="phone">
+    <div class="status-bar">
+      <div class="status-time">9:41 AM</div>
+      <div class="status-icons"><span>●●●</span><span>WiFi</span><span>🔋</span></div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ STUDENT SCREENS -->
+
+    <!-- S1: LOGIN -->
+    <div class="screen active" id="s-login">
+      <div class="login-bg">
+        <div class="login-logo">VidyaSetu</div>
+        <div class="login-tagline">विद्यासेतु — Bridge of Knowledge</div>
+        <div class="login-college">Sanskrit College</div>
+      </div>
+      <div class="login-form">
+        <label class="form-label">Student ID / Email</label>
+        <input class="form-input" type="text" placeholder="karthik.subramanian@college.edu" value="karthik.subramanian@college.edu">
+        <label class="form-label">Password</label>
+        <input class="form-input" type="password" placeholder="••••••••" value="••••••••">
+        <button class="login-btn saf" onclick="go('s-dashboard')">Login as Student</button>
+        <div class="login-note">Contact admin for login credentials</div>
+      </div>
+    </div>
+
+    <!-- S2: STUDENT DKSHBOARD -->
+    <div class="screen" id="s-dashboard">
+      <div class="app-header saf">
+        <div class="app-header-left">
+          <div><div class="app-title">VidyaSetu</div><div class="app-title-sub">Sanskrit College</div></div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <div class="notif"><span style="font-size:20px;">🔔</span><div class="badge">2</div></div>
+          <div class="app-avatar">KS</div>
+        </div>
+      </div>
+      <div class="screen-body">
+        <div class="greeting-bar">
+          <div class="greet-text">Good Morning,</div>
+          <div class="greet-name">Karthik Subramanian</div>
+          <div class="greet-info">B.A Sanskrit — Year 2 · Batch A</div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-box"><div class="stat-big saf">5</div><div class="stat-lbl">Today's Classes</div></div>
+          <div class="stat-box"><div class="stat-big grn">87%</div><div class="stat-lbl">Attendance</div></div>
+          <div class="stat-box"><div class="stat-big" style="color:#E07820;">1</div><div class="stat-lbl">Mock Test Due</div></div>
+        </div>
+        <div class="section-lbl">Today's Timetable</div>
+        <div class="card">
+          <div class="card-body" style="padding-top:8px;">
+            <div class="tt-row">
+              <div class="tt-time">8:00 AM</div><div class="tt-dot ended"></div>
+              <div class="tt-info"><div class="tt-subj">Sanskrit Grammar</div><div class="tt-batch">Pre-Degree Y2</div></div>
+              <button class="tt-btn btn-watch" onclick="go('s-recording')">▶ Watch</button>
+            </div>
+            <div class="tt-row">
+              <div class="tt-time">9:30 AM</div><div class="tt-dot active"></div>
+              <div class="tt-info"><div class="tt-subj">Vedic Literature</div><div class="tt-batch">Pre-Degree Y2</div></div>
+              <button class="tt-btn btn-join" onclick="go('s-liveclass')">JOIN NOW</button>
+            </div>
+            <div class="tt-row">
+              <div class="tt-time">11:00 AM</div><div class="tt-dot locked"></div>
+              <div class="tt-info"><div class="tt-subj">Kavya Shastra</div><div class="tt-batch">Pre-Degree Y2</div></div>
+              <button class="tt-btn btn-locked">🔒 11:00</button>
+            </div>
+            <div class="tt-row">
+              <div class="tt-time">2:00 AR</div><div class="tt-dot exam"></div>
+              <div class="tt-info"><div class="tt-subj">Grammar — Mock Test</div><div class="tt-batch">Mock Test · 30 mins</div></div>
+              <button class="tt-btn btn-exam" onclick="go('s-exam')">Start Mock Test</button>
+            </div>
+            <div class="tt-row">
+              <div class="tt-time">3:30 AR</div><div class="tt-dot locked"></div>
+              <div class="tt-info"><div class="tt-subj">Nyaya Darshana</div><div class="tt-batch">Pre-Degree Y2</div></div>
+              <button class="tt-btn btn-locked">🔒 3:30</button>
+            </div>
+          </div>
+        </div>
+        <div class="section-lbl">Recent Recordings</div>
+        <div class="card" style="margin-bottom:14px;">
+          <div class="card-body" style="padding-top:8px;">
+            <div class="tt-row"><div class="tt-dot ended"></div><div class="tt-info"><div class="tt-subj">Vedic Literature — 08 Mar</div><div class="tt-batch">45 min recording</div></div><button class="tt-btn btn-watch" onclick="go('s-recording')">▶</button></div>
+            <div class="tt-row"><div class="tt-dot ended"></div><div class="tt-info"><div class="tt-subj">Sanskrit Grammar — 07 Mar</div><div class="tt-batch">52 min recording</div></div><button class="tt-btn btn-watch" onclick="go('s-recording')">▶</button></div>
+            <div class="tt-row"><div class="tt-dot ended"></div><div class="tt-info"><div class="tt-subj">Kavya Shastra — 06 Mar</div><div class="tt-batch">38 min recording</div></div><button class="tt-btn btn-watch" onclick="go('s-recording')">▶</button></div>
+          </div>
+        </div>
+      </div>
+      <div class="bottom-nav">
+        <div class="nav-item active"><div class="nav-icon">🏠</div><div class="nav-label">Home</div></div>
+        <div class="nav-item" onclick="go('s-timetable')"><div class="nav-icon">📅</div><div class="nav-label">Timetable</div></div>
+        <div class="nav-item" onclick="go('s-attendance')"><div class="nav-icon">✅</div><div class="nav-label">Attendance</div></div>
+        <div class="nav-item"><div class="nav-icon">📝</div><div class="nav-label">Mock Tests</div></div>
+      </div>
+    </div>
+
+    <!-- S3: RECORDING / VIDEO PLAYER -->
+    <div class="screen" id="s-recording">
+      <div class="app-header saf">
+        <div class="app-header-left">
+          <div class="back-btn" onclick="go('s-dashboard')">‹</div>
+          <div><div class="app-title">Sanskrit Grammar</div><div class="app-title-sub">Pre-Degree Year 2 · Today</div></div>
+        </div>
+      </div>
+      <div class="screen-body">
+        <div class="video-player">
+          <div class="play-btn"><div class="play-icon">▶</div></div>
+        </div>
+        <div class="video-bar">
+          <span style="color:#9A9A9A;font-size:12px;">▶</span>
+          <div class="progress-track"><div class="progress-fill"></div></div>
+          <span class="vid-time">15:32 / 44:18</span>
+        </div>
+        <div class="video-info">
+          <div class="video-title">Sanskrit Grammar — Sandhi Rules</div>
+          <div class="video-meta">Uploaded by Dr. Venkatesh Subramaniam · 09 Mar 2025 · 44 min</div>
+          <div class="attend-badge">✓ Attendance Marked</div>
+        </div>
+        <div class="card" style="margin-bottom:14px;">
+          <div class="card-header"><div class="card-title">More in Sanskrit Grammar</div></div>
+          <div class="card-body">
+            <div class="tt-row"><div class="tt-dot ended"></div><div class="tt-info"><div class="tt-subj">Sandhi Rules — Part 1</div><div class="tt-batch">08 Mar · 38 min</div></div><button class="tt-btn btn-watch">▶</button></div>
+            <div class="tt-row"><div class="tt-dot ended"></div><div class="tt-info"><div class="tt-subj">Vibhakti Pratyaya</div><div class="tt-batch">07 Mar · 50 min</div></div><button class="tt-btn btn-watch">▶</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S4: LIVE CLKSS -->
+    <div class="screen" id="s-liveclass">
+      <div class="app-header saf">
+        <div class="app-header-left">
+          <div class="back-btn" onclick="go('s-dashboard')">‹</div>
+          <div><div class="app-title">Vedic Literature</div><div class="app-title-sub">Live Class · Pre-Degree Y2</div></div>
+        </div>
+        <div style="background:#C0392B;padding:3px 8px;border-radius:4px;color:#fff;font-size:10px;font-weight:700;">● LIVE</div>
+      </div>
+      <div class="screen-body">
+        <div class="live-bg">
+          <div class="live-badge">● REC</div>
+          <div class="teacher-avatar-lg">SI</div>
+          <div class="live-name">Dr. Sundaram Iyer</div>
+          <div class="live-sub">Vedic Literature</div>
+          <div class="student-thumbs">
+            <div class="thumb">K</div><div class="thumb" style="background:#2A6B4A;">D</div>
+            <div class="thumb" style="background:#1A5C8A;">A</div>
+            <div class="thumb" style="background:#7A3A10;">M</div>
+            <div class="thumb" style="background:#5A2A7A;">R</div>
+          </div>
+          <div class="live-count">14 students attending</div>
+        </div>
+        <div class="live-controls">
+          <button class="live-btn mute">🎤</button>
+          <button class="live-btn cam">📷</button>
+          <button class="live-btn end" onclick="go('s-dashboard')">✕ Leave</button>
+        </div>
+        <div class="card" style="margin-bottom:14px;">
+          <div class="card-header"><div><div class="card-title">Session Info</div><div class="card-sub">Auto-recording in progress</div></div></div>
+          <div class="card-body">
+            <div class="tt-row"><div class="tt-info"><div class="tt-subj">Subject</div></div><span style="font-size:12px;color:var(--mid);">Vedic Literature</span></div>
+            <div class="tt-row"><div class="tt-info"><div class="tt-subj">Duration</div></div><span style="font-size:12px;color:var(--mid);">9:30 AM — 11:00 AM</span></div>
+            <div class="tt-row"><div class="tt-info"><div class="tt-subj">Recording</div></div><span style="font-size:12px;color:var(--grn);font-weight:600;">● Saving automatically</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S5: EXAM -->
+    <div class="screen" id="s-exam">
+      <div class="app-header saf">
+        <div class="app-header-left">
+          <div><div class="app-title">Sanskrit Grammar — Mock Test</div><div class="app-title-sub">Question 2 of 10</div></div>
+        </div>
+      </div>
+      <div class="screen-body">
+        <div class="exam-header">
+          <div class="exam-title-lg">Sanskrit Grammar — Mock Test</div>
+          <div class="exam-meta">10 MCQ · 10 Marks · Pre-Degree Year 2</div>
+          <div class="timer-box">⏱ 22:14 remaining</div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;padding:12px 14px 4px;">
+          <span style="width:26px;height:26px;border-radius:50%;background:var(--grn);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;">1</span>
+          <span style="width:26px;height:26px;border-radius:50%;background:var(--saf);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;">2</span>
+          <span style="width:26px;height:26px;border-radius:50%;background:var(--grey);color:#9A8070;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);">3</span>
+          <span style="width:26px;height:26px;border-radius:50%;background:var(--grey);color:#9A8070;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);">4</span>
+          <span style="width:26px;height:26px;border-radius:50%;background:var(--grey);color:#9A8070;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);">5</span>
+        </div>
+        <div class="q-box">
+          <div class="q-num">Question 2 / 10</div>
+          <div class="q-text">Which of the following is the correct form of Sandhi for "राम + अयन"?</div>
+          <div class="q-options">
+            <div class="q-opt" onclick="selectOpt(this)">
+              <div class="q-opt-circle"></div><div class="q-opt-label">A. रामयन्</div>
+            </div>
+            <div class="q-opt selected" onclick="selectOpt(this)">
+              <div class="q-opt-circle"></div><div class="q-opt-label">B. रामायण</div>
+            </div>
+            <div class="q-opt" onclick="selectOpt(this)">
+              <div class="q-opt-circle"></div><div class="q-opt-label">C. रामाण</div>
+            </div>
+            <div class="q-opt" onclick="selectOpt(this)">
+              <div class="q-opt-circle"></div><div class="q-opt-label">D. रामयण</div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;padding:0 14px 14px;">
+          <button style="flex:1;padding:11px;border:1.5px solid var(--border);border-radius:10px;background:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;color:var(--mid);cursor:pointer;">← Prev</button>
+          <button style="flex:1;padding:11px;border:none;border-radius:10px;background:var(--saf);color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;" onclick="go('s-result')">Next →</button>
+        </div>
+        <div class="submit-bar">
+          <button class="submit-btn" onclick="go('s-result')">Submit Mock Test</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- S6: EXAM RESULT -->
+    <div class="screen" id="s-result">
+      <div class="app-header saf">
+        <div class="app-header-left">
+          <div class="back-btn" onclick="go('s-dashboard')">‹</div>
+          <div><div class="app-title">Mock Test Result</div><div class="app-title-sub">Sanskrit Grammar — Mock Test</div></div>
+        </div>
+      </div>
+      <div class="screen-body">
+        <div class="result-hero">
+          <div class="result-score">8</div>
+          <div class="result-outof">out of 10</div>
+          <div class="result-label">Sanskrit Grammar — Mock Test</div>
+          <div class="result-badge">🏆 Well Done!</div>
+        </div>
+        <div class="summary-pills" style="margin-top:12px;">
+          <span class="spill" style="background:var(--grn2);color:var(--grn);">✓ 8 Correct</span>
+          <span class="spill" style="background:var(--red2);color:var(--red);">✗ 2 Wrong</span>
+          <span class="spill" style="background:var(--saf2);color:var(--saf3);">📊 Top 3 in Batch</span>
+        </div>
+        <div class="section-lbl">Answer Sheet</div>
+        <div class="card" style="margin-bottom:14px;">
+          <div class="card-body" style="padding-top:8px;">
+            <div class="ans-row"><div class="ans-q">Q1. Sandhi for राम + ईश्वर?</div><div class="ans-status">✅</div></div>
+            <div class="ans-row"><div class="ans-q">Q2. Correct form of राम + अयन?</div><div class="ans-status">✅</div></div>
+            <div class="ans-row"><div class="ans-q">Q3. Vibhakti of प्रथमा?</div><div class="ans-status">❌</div></div>
+            <div class="ans-row"><div class="ans-q">Q4. Root verb of गच्छति?</div><div class="ans-status">✅</div></div>
+            <div class="ans-row"><div class="ans-q">Q5. Meaning of सन्धि?</div><div class="ans-status">✅</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="bottom-nav">
+        <div class="nav-item active" onclick="go('s-dashboard')"><div class="nav-icon">🏠</div><div class="nav-label">Home</div></div>
+        <div class="nav-item"><div class="nav-icon">📅</div><div class="nav-label">Timetable</div></div>
+        <div class="nav-item" onclick="go('s-attendance')"><div class="nav-icon">✅</div><div class="nav-label">Attendance</div></div>
+        <div class="nav-item"><div class="nav-icon">📝</div><div class="nav-label">Mock Tests</div></div>
+      </div>
+    </div>
+
+    <!-- S7: STUDENT ATTENDANCE -->
+    <div class="screen" id="s-attendance">
+      <div class="app-header saf">
+        <div class="app-header-left">
+          <div class="back-btn" onclick="go('s-dashboard')">‹</div>
+          <div><div class="app-title">My Attendance</div><div class="app-title-sub">March 2025</div></div>
+        </div>
+      </div>
+      <div class="screen-body">
+        <div class="stat-row">
+          <div class="stat-box"><div class="stat-big saf">87%</div><div class="stat-lbl">Overall</div></div>
+          <div class="stat-box"><div class="stat-big grn">42</div><div class="stat-lbl">Attended</div></div>
+          <div class="stat-box"><div class="stat-big" style="color:var(--red);">6</div><div class="stat-lbl">Missed</div></div>
+        </div>
+        <div class="section-lbl">By Subject</div>
+        <div class="card" style="margin-bottom:14px;">
+          <div class="card-body" style="padding-top:8px;">
+            <div class="att-row">
+              <div class="att-avatar" style="background:var(--saf);">SG</div>
+              <div><div class="att-name">Sanskrit Grammar</div><div class="att-sub">18/20 classes</div></div>
+              <div class="att-pct" style="color:var(--grn);">90%</div>
+              <div class="att-bar-wrap"><div class="att-bar-fill" style="width:90%;background:var(--grn);"></div></div>
+            </div>
+            <div class="att-row">
+              <div class="att-avatar" style="background:var(--grn);">VL</div>
+              <div><div class="att-name">Vedic Literature</div><div class="att-sub">15/18 classes</div></div>
+              <div class="att-pct" style="color:var(--saf);">83%</div>
+              <div class="att-bar-wrap"><div class="att-bar-fill" style="width:83%;background:var(--saf);"></div></div>
+            </div>
+            <div class="att-row">
+              <div class="att-avatar" style="background:var(--blue);">KS</div>
+              <div><div class="att-name">Kavya Shastra</div><div class="att-sub">9/10 classes</div></div>
+              <div class="att-pct" style="color:var(--grn);">90%</div>
+              <div class="att-bar-wrap"><div class="att-bar-fill" style="width:90%;background:var(--grn);"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S8: TIMETABLE VIEW -->
+    <div class="screen" id="s-timetable">
+      <div class="app-header saf">
+        <div class="app-header-left">
+          <div class="back-btn" onclick="go('s-dashboard')">‹</div>
+          <div><div class="app-title">Timetable</div><div class="app-title-sub">Week of 09–14 Mar 2025</div></div>
+        </div>
+      </div>
+      <div class="screen-body">
+        <div style="display:flex;gap:0;padding:12px 14px 4px;overflow-x:auto;">
+          <div style="flex:1;text-align:center;padding:7px 4px;background:var(--saf);border-radius:8px;color:#fff;font-size:11px;font-weight:600;margin:0 2px;">Mon<br><span style="font-size:13px;">9</span></div>
+          <div style="flex:1;text-align:center;padding:7px 4px;background:var(--grey);border-radius:8px;color:#9A8070;font-size:11px;font-weight:600;margin:0 2px;">Tue<br><span style="font-size:13px;">10</span></div>
+          <div style="flex:1;text-align:center;padding:7px 4px;background:var(--grey);border-radius:8px;color:#9A8070;font-size:11px;font-weight:600;margin:0 2px;">Wed<br><span style="font-size:13px;">11</span></div>
+          <div style="flex:1;text-align:center;padding:7px 4px;background:var(--grey);border-radius:8px;color:#9A8070;font-size:11px;font-weight:600;margin:0 2px;">Thu<br><span style="font-size:13px;">12</span></div>
+          <div style="flex:1;text-align:center;padding:7px 4px;background:var(--grey);border-radius:8px;color:#9A8070;font-size:11px;font-weight:600;margin:0 2px;">Fri<br><span style="font-size:13px;">13</span></div>
+          <div style="flex:1;text-align:center;padding:7px 4px;background:var(--grey);border-radius:8px;color:#9A8070;font-size:11px;font-weight:600;margin:0 2px;">Sat<br><span style="font-size:13px;">14</span></div>
+        </div>
+        <div class="section-lbl">Monday, 09 March</div>
+        <div class="card" style="margin-bottom:14px;">
+          <div class="card-body" style="padding-top:8px;">
+            <div class="tt-row"><div class="tt-time">8:00</div><div class="tt-dot ended"></div><div class="tt-info"><div class="tt-subj">Sanskrit Grammar</div><div class="tt-batch">Ended</div></div><button class="tt-btn btn-watch" onclick="go('s-recording')">▶</button></div>
+            <div class="tt-row"><div class="tt-time">9:30</div><div class="tt-dot active"></div><div class="tt-info"><div class="tt-subj">Vedic Literature</div><div class="tt-batch">Live Now</div></div><button class="tt-btn btn-join" onclick="go('s-liveclass')">JOIN</button></div>
+            <div class="tt-row"><div class="tt-time">11:00</div><div class="tt-dot locked"></div><div class="tt-info"><div class="tt-subj">Kavya Shastra</div><div class="tt-batch">Upcoming</div></div><button class="tt-btn btn-locked">🔒</button></div>
+            <div class="tt-row"><div class="tt-time">2:00</div><div class="tt-dot exam"></div><div class="tt-info"><div class="tt-subj">Grammar Mock Test</div><div class="tt-batch">30 mins</div></div><button class="tt-btn btn-exam" onclick="go('s-exam')">Mock Test</button></div>
+          </div>
+        </div>
+      </div>
+      <div class="bottom-nav">
+        <div class="nav-item" onclick="go('s-dashboard')"><div class="nav-icon">🏠</div><div class="nav-label">Home</div></div>
+        <div class="nav-item active"><div class="nav-icon">📅</div><div class="nav-label">Timetable</div></div>
+        <div class="nav-item" onclick="go('s-attendance')"><div class="nav-icon">✅</div><div class="nav-label">Attendance</div></div>
+        <div class="nav-item"><div class="nav-icon">📝</div><div class="nav-label">Mock Tests</div></div>
+      </div>
+    </div>
+
+
+    <!-- ═══════════════════════════════════════ TEACHER SCREENS -->
+
+    <!-- T1: TEACHER LOGIN -->
+    <div class="screen" id="t-login">
+      <div class="login-bg">
+        <div class="login-logo">VidyaSetu</div>
+        <div class="login-tagline">विद्यासेतु — Bridge of Knowledge</div>
+        <div class="login-college">Sanskrit College — Teacher Portal</div>
+      </div>
+      <div class="login-form">
+        <label class="form-label">Teacher ID / Email</label>
+        <input class="form-input" type="text" value="dr.venkatesh@college.edu">
+        <label class="form-label">Password</label>
+        <input class="form-input" type="password" value="••••••••">
+        <button class="login-btn grn" onclick="go('t-dashboard')">Login as Teacher</button>
+        <div class="login-note">Contact admin for login credentials</div>
+      </div>
+    </div>
+
+    <!-- T2: TEACHER DKSHBOARD -->
+    <div class="screen" id="t-dashboard">
+      <div class="app-header grn">
+        <div class="app-header-left">
+          <div><div class="app-title">VidyaSetu</div><div class="app-title-sub">Teacher Portal</div></div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <div class="notif"><span style="font-size:20px;">🔔</span><div class="badge">3</div></div>
+          <div class="app-avatar" style="background:rgba(255,255,255,.25);">VS</div>
+        </div>
+      </div>
+      <div class="screen-body">
+        <div class="greeting-bar grn-bar">
+          <div class="greet-text">Good Morning,</div>
+          <div class="greet-name">Dr. Venkatesh Subramaniam</div>
+          <div class="greet-info">Sanskrit Grammar · Kavya Shastra · 3 Batches</div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-box"><div class="stat-big grn">3</div><div class="stat-lbl">Today's Classes</div></div>
+          <div class="stat-box"><div class="stat-big saf">48</div><div class="stat-lbl">Students</div></div>
+          <div class="stat-box"><div class="stat-big" style="color:#E07820;">1</div><div class="stat-lbl">Pending Key</div></div>
+        </div>
+        <div class="section-lbl">Today's Schedule</div>
+        <div class="card">
+          <div class="card-body" style="padding-top:8px;">
+            <div class="tt-row">
+              <div class="tt-time">8:00 AM</div><div class="tt-dot ended"></div>
+              <div class="tt-info"><div class="tt-subj">Sanskrit Grammar</div><div class="tt-batch">Pre-Degree Y2 · 16 students</div></div>
+              <button class="tt-btn btn-watch">Done</button>
+            </div>
+            <div class="tt-row">
+              <div class="tt-time">9:30 AM</div><div class="tt-dot active"></div>
+              <div class="tt-info"><div class="tt-subj">Vedic Literature</div><div class="tt-batch">Degree Y1 · 18 students</div></div>
+              <button class="tt-btn btn-join" onclick="go('t-liveclass')">Start Class</button>
+            </div>
+            <div class="tt-row">
+              <div class="tt-time">11:00 AM</div><div class="tt-dot locked"></div>
+              <div class="tt-info"><div class="tt-subj">Kavya Shastra</div><div class="tt-batch">Pre-Degree Y1 · 14 students</div></div>
+              <button class="tt-btn btn-locked">🔒 11:00</button>
+            </div>
+          </div>
+        </div>
+        <div class="section-lbl">Quick Actions</div>
+        <div style="display:flex;gap:10px;padding:0 14px 4px;">
+          <div style="flex:1;background:var(--white);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center;cursor:pointer;" onclick="go('t-upload')">
+            <div style="font-size:24px;">📤</div>
+            <div style="font-size:11px;font-weight:600;color:var(--grn);margin-top:6px;">Upload Video</div>
+          </div>
+          <div style="flex:1;background:var(--white);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center;cursor:pointer;" onclick="go('t-exam-create')">
+            <div style="font-size:24px;">📝</div>
+            <div style="font-size:11px;font-weight:600;color:var(--saf);margin-top:6px;">Create Mock Test</div>
+          </div>
+          <div style="flex:1;background:var(--white);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center;cursor:pointer;" onclick="go('t-attendance')">
+            <div style="font-size:24px;">📊</div>
+            <div style="font-size:11px;font-weight:600;color:var(--mid);margin-top:6px;">Reports</div>
+          </div>
+        </div>
+        <div class="section-lbl">Pending — Enter Answer Key</div>
+        <div class="card" style="margin-bottom:14px;">
+          <div class="card-body" style="padding-top:8px;">
+            <div class="tt-row"><div class="tt-dot exam"></div><div class="tt-info"><div class="tt-subj">Grammar Mock Test</div><div class="tt-batch">Completed · 16 submissions</div></div><button class="tt-btn btn-exam" onclick="go('t-answerkey')">Enter Key</button></div>
+          </div>
+        </div>
+      </div>
+      <div class="bottom-nav">
+        <div class="nav-item active-g"><div class="nav-icon">🏠</div><div class="nav-label">Home</div></div>
+        <div class="nav-item" onclick="go('t-upload')"><div class="nav-icon">📤</div><div class="nav-label">Upload</div></div>
+        <div class="nav-item" onclick="go('t-attendance')"><div class="nav-icon">📊</div><div class="nav-label">Reports</div></div>
+        <div class="nav-item" onclick="go('t-exam-create')"><div class="nav-icon">📝</div><div class="nav-label">Mock Tests</div></div>
+      </div>
+    </div>
+
+    <!-- T3: UPLOAD VIDEO -->
+    <div class="screen" id="t-upload">
+      <div class="app-header grn">
+        <div class="app-header-left">
+          <div class="back-btn" onclick="go('t-dashboard')">‹</div>
+          <div><div class="app-title">Upload Video</div><div class="app-title-sub">Sanskrit Grammar</div></div>
+        </div>
+      </div>
+      <div class="screen-body">
+        <div style="padding:14px;">
+          <div class="upload-zone">
+            <div class="upload-icon">🎬</div>
+            <div class="upload-text">Tap to select video file</div>
+            <div class="upload-sub">MP4, MOV · Max 2GB</div>
+          </div>
+          <div style="height:1px;background:var(--border);margin:16px 0;"></div>
+          <div class="form-row">
+            <label class="form-label">Lesson Title</label>
+            <input class="form-input" value="Sandhi Rules — Part 3">
+          </div>
+          <div class="form-row">
+            <label class="form-label">Subject</label>
+            <input class="form-input" value="Sanskrit Grammar">
+          </div>
+          <div class="form-row">
+            <label class="form-label">Batch</label>
+            <select class="form-input">
+              <option>Pre-Degree Year 2</option>
+              <option>Degree Year 1</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label class="form-label">Schedule Date & Time</label>
+            <input class="form-input" type="datetime-local" value="2025-03-10T08:00">
+          </div>
+          <button class="login-btn grn" style="margin-top:4px;" onclick="go('t-uploading')">Upload & Schedule</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- T4: UPLOADING -->
+    <div class="screen" id="t-uploading">
+      <div class="app-header grn">
+        <div class="app-header-left">
+          <div class="back-btn" onclick="go('t-dashboard')">‹</div>
+          <div><div class="app-title">Uploading</div><div class="app-title-sub">Do not close the app</div></div>
+        </div>
+      </div>
+      <div class="screen-body">
+        <div class="upload-progress" style="margin-top:14px;">
+          <div class="up-name">Sandhi Rules — Part 3.mp4</div>
+          <div class="up-meta">123 MB · Estimated 2 min remaining</div>
+          <div class="up-track"><div class="up-fill"></div></div>
+          <div style="font-size:11px;color:var(--grn);font-weight:600;margin-top:6px;">70% — Uploading...</div>
+        </div>
+        <div class="card" style="margin-top:12px;">
+          <div class="card-body" style="padding-top:12px;">
+            <div class="tt-row"><div class="tt-info"><div class="tt-subj">Scheduled for</div></div><span style="font-size:12px;color:var(--grn);font-weight:600;">Mon, 10 Mar · 8:00 AM</span></div>
+            <div class="tt-row"><div class="tt-info"><div class="tt-subj">Batch</div></div><span style="font-size:12px;color:var(--mid);">Pre-Degree Year 2</span></div>
+            <div class="tt-row"><div class="tt-info"><div class="tt-subj">Students notified</div></div><span style="font-size:12px;color:var(--grn);">✓ Auto on schedule</span></div>
+          </div>
+        </div>
+        <div style="padding:14px;font-size:12px;color:#9A8070;text-align:center;line-height:1.6;">Video will unlock for students automatically<br>at the scheduled time. No further action needed.</div>
+      </div>
+    </div>
+
+    <!-- T5: LIVE CLKSS TEACHER VIEW -->
+    <div class="screen" id="t-liveclass">
+      <div class="app-header grn">
+        <div class="app-header-left">
+          <div class="back-btn" onclick="go('t-dashboard')">‹</div>
+          <div><div class="app-title">Vedic Literature — Live</div><div class="app-title-sub">Degree Year 1 · 18 students</div></div>
+        </div>
+        <div style="background:#C0392B;padding:3px 8px;border-radius:4px;color:#fff;font-size:10px;font-weight:700;">● LIVE</div>
+      </div>
+      <div class="screen-body">
+        <div class="live-bg" style="aspect-ratio:4/3;">
+          <div class="live-badge">● REC</div>
+          <div class="teacher-avatar-lg" style="background:var(--saf);font-size:20px;">You</div>
+          <div class="live-name" style="color:#fff;">Dr. Venkatesh Subramaniam</div>
+          <div class="live-sub">Vedic Literature · Degree Y1</div>
+          <div class="student-thumbs">
+            <div class="thumb">K</div><div class="thumb" style="background:#2A6B4A;">D</div>
+            <div class="thumb" style="background:#1A5C8A;">A</div>
+            <div class="thumb" style="background:#7A3A10;">M</div>
+            <div class="thumb" style="background:#5A2A7A;">+14</div>
+          </div>
+          <div class="live-count">18 students attending</div>
+        </div>
+        <div class="live-controls">
+          <button class="live-btn mute">🎤</button>
+          <button class="live-btn cam">📷</button>
+          <button class="live-btn" style="background:#2A2A2A;color:#fff;font-size:12px;">👥</button>
+          <button class="live-btn end" onclick="go('t-dashboard')">End</button>
+        </div>
+        <div class="card" style="margin-bottom:14px;">
+          <div class="card-header"><div class="card-title">Live Session Info</div></div>
+          <div class="card-body">
+            <div class="tt-row"><div class="tt-info"><div class="tt-subj">Duration</div></div><span style="font-size:12px;color:var(--mid);">00:14:32 elapsed</span></div>
+            <div class="tt-row"><div class="tt-info"><div class="tt-subj">Attending</div></div><span style="font-size:12px;color:var(--grn);font-weight:600;">18 / 18 students</span></div>
+            <div class="tt-row"><div class="tt-info"><div class="tt-subj">Recording</div></div><span style="font-size:12px;color:var(--grn);">● Auto-saving</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- T6: CREATE EXAM -->
+    <div class="screen" id="t-exam-create">
+      <div class="app-header grn">
+        <div class="app-header-left">
+          <div class="back-btn" onclick="go('t-dashboard')">‹</div>
+          <div><div class="app-title">Create Mock Test</div><div class="app-title-sub">Sanskrit Grammar</div></div>
+        </div>
+      </div>
+      <div class="screen-body">
+        <div style="padding:14px;">
+          <div class="form-row">
+            <label class="form-label">Mock Test Title</label>
+            <input class="form-input" value="Grammar Mock Test">
+          </div>
+          <div class="form-row">
+            <label class="form-label">Subject</label>
+            <input class="form-input" value="Sanskrit Grammar">
+          </div>
+          <div class="form-row">
+            <label class="form-label">Batch</label>
+            <select class="form-input"><option>Pre-Degree Year 2</option><option>Degree Year 1</option></select>
+          </div>
+          <div style="display:flex;gap:10px;">
+            <div style="flex:1;">
+              <label class="form-label">Type</label>
+              <select class="form-input"><option>MCQ</option><option>Descriptive</option><option>Both</option></select>
+            </div>
+            <div style="flex:1;">
+              <label class="form-label">Duration (mins)</label>
+              <input class="form-input" value="30">
+            </div>
+          </div>
+          <div class="form-row">
+            <label class="form-label">Mock Test Date & Time</label>
+            <input class="form-input" type="datetime-local" value="2025-03-12T14:00">
+          </div>
+          <div style="background:var(--grn2);border-radius:10px;padding:12px;margin-bottom:14px;border-left:3px solid var(--grn);">
+            <div style="font-size:12px;color:var(--grn);font-weight:600;">After creation:</div>
+            <div style="font-size:11px;color:#2A5A3A;margin-top:4px;line-height:1.6;">Add questions → Publish → Mock Test auto-appears in student timetable → Enter answer key after exam → Results auto-published</div>
+          </div>
+          <button class="login-btn grn" onclick="go('t-answerkey')">Create & Add Questions →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- T7: ANSWER KEY -->
+    <div class="screen" id="t-answerkey">
+      <div class="app-header grn">
+        <div class="app-header-left">
+          <div class="back-btn" onclick="go('t-dashboard')">‹</div>
+          <div><div class="app-title">Enter Answer Key</div><div class="app-title-sub">Grammar Mock Test · 16 submissions</div></div>
+        </div>
+      </div>
+      <div class="screen-body">
+        <div style="background:var(--saf2);padding:12px 14px;border-bottom:1px solid var(--border);">
+          <div style="font-size:12px;color:var(--saf3);font-weight:600;">16 students submitted · System will auto-score instantly on save</div>
+        </div>
+        <div class="q-box">
+          <div class="q-num">Q1 — 1 Mark</div>
+          <div class="q-text">Sandhi for राम + ईश्वर?</div>
+          <div class="q-options">
+            <div class="q-opt" onclick="selectOpt(this)"><div class="q-opt-circle"></div><div class="q-opt-label">A. रामेश्वर</div></div>
+            <div class="q-opt selected" onclick="selectOpt(this)"><div class="q-opt-circle"></div><div class="q-opt-label">B. रामेश्वर ✓ Correct</div></div>
+            <div class="q-opt" onclick="selectOpt(this)"><div class="q-opt-circle"></div><div class="q-opt-label">C. रामईश्वर</div></div>
+            <div class="q-opt" onclick="selectOpt(this)"><div class="q-opt-circle"></div><div class="q-opt-label">D. रामइश्वर</div></div>
+          </div>
+        </div>
+        <div class="q-box">
+          <div class="q-num">Q2 — 1 Mark</div>
+          <div class="q-text">Correct form of राम + अयन?</div>
+          <div class="q-options">
+            <div class="q-opt" onclick="selectOpt(this)"><div class="q-opt-circle"></div><div class="q-opt-label">A. रामयन्</div></div>
+            <div class="q-opt selected" onclick="selectOpt(this)"><div class="q-opt-circle"></div><div class="q-opt-label">B. रामायण ✓ Correct</div></div>
+            <div class="q-opt" onclick="selectOpt(this)"><div class="q-opt-circle"></div><div class="q-opt-label">C. रामाण</div></div>
+            <div class="q-opt" onclick="selectOpt(this)"><div class="q-opt-circle"></div><div class="q-opt-label">D. रामयण</div></div>
+          </div>
+        </div>
+        <div class="submit-bar">
+          <button class="submit-btn" style="background:var(--grn);" onclick="go('t-results')">Save Key & Auto-Score All Students</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- T8: RESULTS PUBLISHED -->
+    <div class="screen" id="t-results">
+      <div class="app-header grn">
+        <div class="app-header-left">
+          <div class="back-btn" onclick="go('t-dashboard')">‹</div>
+          <div><div class="app-title">Results Published</div><div class="app-title-sub">Grammar Mock Test · Batch B</div></div>
+        </div>
+      </div>
+      <div class="screen-body">
+        <div class="result-hero" style="background:linear-gradient(135deg,var(--grn),#1A4A30);">
+          <div style="font-size:14px;color:rgba(255,255,255,.75);">Class Average</div>
+          <div class="result-score" style="font-size:40px;">7.4<span style="font-size:20px;">/10</span></div>
+          <div class="result-label">16 Students · Auto-scored</div>
+          <div class="result-badge">✓ Results published to all students</div>
+        </div>
+        <div class="summary-pills" style="margin-top:12px;">
+          <span class="spill" style="background:var(--grn2);color:var(--grn);">Top: 10/10</span>
+          <span class="spill" style="background:var(--saf2);color:var(--saf3);">Avg: 7.4</span>
+          <span class="spill" style="background:var(--red2);color:var(--red);">Below 5: 2 students</span>
+        </div>
+        <div class="section-lbl">Student Scores</div>
+        <div class="card" style="margin-bottom:14px;">
+          <div class="card-body" style="padding-top:8px;">
+            <div class="att-row"><div class="att-avatar" style="background:var(--saf);">KS</div><div><div class="att-name">Karthik Subramanian</div><div class="att-sub">Pre-Degree Y2</div></div><div class="att-pct" style="color:var(--grn);">8/10</div></div>
+            <div class="att-row"><div class="att-avatar" style="background:var(--grn);">DV</div><div><div class="att-name">Deepa Venkatesan</div><div class="att-sub">Pre-Degree Y2</div></div><div class="att-pct" style="color:var(--grn);">10/10</div></div>
+            <div class="att-row"><div class="att-avatar" style="background:var(--blue);">AR</div><div><div class="att-name">Anitha Raghavan</div><div class="att-sub">Pre-Degree Y2</div></div><div class="att-pct" style="color:var(--saf);">6/10</div></div>
+            <div class="att-row"><div class="att-avatar" style="background:#7A3A10;">SI</div><div><div class="att-name">Murugesan Pillai</div><div class="att-sub">Pre-Degree Y2</div></div><div class="att-pct" style="color:var(--red);">4/10</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- T9: ATTENDANCE REPORT -->
+    <div class="screen" id="t-attendance">
+      <div class="app-header grn">
+        <div class="app-header-left">
+          <div class="back-btn" onclick="go('t-dashboard')">‹</div>
+          <div><div class="app-title">Attendance Report</div><div class="app-title-sub">Sanskrit Grammar · March 2025</div></div>
+        </div>
+      </div>
+      <div class="screen-body">
+        <div class="stat-row">
+          <div class="stat-box"><div class="stat-big grn">20</div><div class="stat-lbl">Classes Held</div></div>
+          <div class="stat-box"><div class="stat-big saf">16</div><div class="stat-lbl">Students</div></div>
+          <div class="stat-box"><div class="stat-big" style="color:var(--blue);">82%</div><div class="stat-lbl">Avg Attendance</div></div>
+        </div>
+        <div class="section-lbl">Student-wise Attendance</div>
+        <div class="card" style="margin-bottom:14px;">
+          <div class="card-body" style="padding-top:8px;">
+            <div class="att-row"><div class="att-avatar" style="background:var(--saf);">KS</div><div><div class="att-name">Karthik Subramanian</div><div class="att-sub">18/20 classes</div></div><div class="att-pct" style="color:var(--grn);">90%</div><div class="att-bar-wrap"><div class="att-bar-fill" style="width:90%;background:var(--grn);"></div></div></div>
+            <div class="att-row"><div class="att-avatar" style="background:var(--grn);">DV</div><div><div class="att-name">Deepa Venkatesan</div><div class="att-sub">20/20 classes</div></div><div class="att-pct" style="color:var(--grn);">100%</div><div class="att-bar-wrap"><div class="att-bar-fill" style="width:100%;background:var(--grn);"></div></div></div>
+            <div class="att-row"><div class="att-avatar" style="background:var(--blue);">AR</div><div><div class="att-name">Anitha Raghavan</div><div class="att-sub">14/20 classes</div></div><div class="att-pct" style="color:var(--saf);">70%</div><div class="att-bar-wrap"><div class="att-bar-fill" style="width:70%;background:var(--saf);"></div></div></div>
+            <div class="att-row"><div class="att-avatar" style="background:#7A3A10;">SI</div><div><div class="att-name">Murugesan Pillai</div><div class="att-sub">10/20 classes</div></div><div class="att-pct" style="color:var(--red);">50%</div><div class="att-bar-wrap"><div class="att-bar-fill" style="width:50%;background:var(--red);"></div></div></div>
+          </div>
+        </div>
+        <div style="padding:0 14px 14px;">
+          <button style="width:100%;padding:11px;border:1.5px solid var(--grn);border-radius:10px;background:var(--grn2);color:var(--grn);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;">⬇ Download Report</button>
+        </div>
+      </div>
+      <div class="bottom-nav">
+        <div class="nav-item" onclick="go('t-dashboard')"><div class="nav-icon">🏠</div><div class="nav-label">Home</div></div>
+        <div class="nav-item" onclick="go('t-upload')"><div class="nav-icon">📤</div><div class="nav-label">Upload</div></div>
+        <div class="nav-item active-g"><div class="nav-icon">📊</div><div class="nav-label">Reports</div></div>
+        <div class="nav-item" onclick="go('t-exam-create')"><div class="nav-icon">📝</div><div class="nav-label">Mock Tests</div></div>
+      </div>
+    </div>
+
+  </div><!-- phone -->
+
+  <!-- SCREEN MAP -->
+  <div style="margin-top:16px;background:#2A1000;border-radius:12px;padding:16px 14px;">
+    <div style="font-size:10px;color:#C8A87A;text-transform:uppercase;letter-spacing:1.5px;font-weight:700;margin-bottom:12px;">Navigation Map</div>
+    <div id="nav-map" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+  </div>
+</div>
+
+<script>
+const screens = {
+  student: [
+    {id:'s-login',      label:'Login'},
+    {id:'s-dashboard',  label:'Dashboard'},
+    {id:'s-timetable',  label:'Timetable'},
+    {id:'s-recording',  label:'Watch Video'},
+    {id:'s-liveclass',  label:'Live Class'},
+    {id:'s-attendance', label:'Attendance'},
+    {id:'s-exam',       label:'Take Exam'},
+    {id:'s-result',     label:'Results'},
+  ],
+  teacher: [
+    {id:'t-login',       label:'Login'},
+    {id:'t-dashboard',   label:'Dashboard'},
+    {id:'t-upload',      label:'Upload Video'},
+    {id:'t-uploading',   label:'Uploading'},
+    {id:'t-liveclass',   label:'Live Class'},
+    {id:'t-exam-create', label:'Create Mock Test'},
+    {id:'t-answerkey',   label:'Answer Key'},
+    {id:'t-results',     label:'Results'},
+    {id:'t-attendance',  label:'Attendance'},
+  ]
+};
+
+let currentRole = 'student';
+
+function go(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  buildMap();
+}
+
+function setRole(role) {
+  currentRole = role;
+  document.querySelectorAll('.role-pill').forEach(p => p.className = 'role-pill');
+  document.querySelectorAll('.role-pill')[role === 'student' ? 0 : 1].classList.add(role === 'student' ? 'active-s' : 'active-t');
+  go(role === 'student' ? 's-login' : 't-login');
+}
+
+function selectOpt(el) {
+  el.closest('.q-options').querySelectorAll('.q-opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function buildMap() {
+  const map = document.getElementById('nav-map');
+  map.innerHTML = '';
+  const active = document.querySelector('.screen.active')?.id;
+  screens[currentRole].forEach(s => {
+    const btn = document.createElement('button');
+    btn.textContent = s.label;
+    btn.style.cssText = `padding:5px 10px;border-radius:6px;font-size:11px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;border:1px solid;transition:all .15s;${
+      s.id === active
+        ? `background:${currentRole === 'student' ? '#D4580A' : '#2A6B4A'};color:#fff;border-color:${currentRole === 'student' ? '#D4580A' : '#2A6B4A'};`
+        : 'background:transparent;color:#7A5040;border-color:#3A1A0A;'
+    }`;
+    btn.onclick = () => go(s.id);
+    map.appendChild(btn);
+  });
+}
+
+// init
+buildMap();
+</script>
+</body>
+</html>

@@ -1,0 +1,141 @@
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(160deg, var(--dark) 0%, #3A1500 100%);
+  padding: 20px;
+}
+
+.login-container {
+  background: var(--white);
+  border-radius: 20px;
+  width: 100%;
+  max-width: 420px;
+  overflow: hidden;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.3);
+}
+
+.login-header {
+  background: linear-gradient(160deg, var(--dark) 0%, #3A1500 100%);
+  padding: 40px 24px 28px;
+  text-align: center;
+}
+.login-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 40px;
+  color: var(--saf);
+  margin-bottom: 4px;
+}
+.login-tagline {
+  font-size: 12px;
+  color: #C8A87A;
+  letter-spacing: 2px;
+}
+.login-college {
+  font-size: 11px;
+  color: #7A5040;
+  margin-top: 6px;
+}
+
+.role-toggle {
+  display: flex;
+  gap: 0;
+  padding: 20px 24px 0;
+}
+.role-btn {
+  flex: 1;
+  padding: 10px;
+  border: 2px solid var(--border);
+  background: var(--white);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: var(--mid);
+}
+.role-btn:first-child { border-radius: 10px 0 0 10px; }
+.role-btn:last-child { border-radius: 0 10px 10px 0; }
+.role-btn.active-student {
+  background: var(--saf);
+  color: #fff;
+  border-color: var(--saf);
+}
+.role-btn.active-teacher {
+  background: var(--grn);
+  color: #fff;
+  border-color: var(--grn);
+}
+
+.login-form {
+  padding: 24px;
+}
+.form-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--mid);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+  display: block;
+}
+.form-input {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-size: 14px;
+  font-family: 'DM Sans', sans-serif;
+  background: var(--white);
+  color: var(--dark);
+  margin-bottom: 16px;
+  outline: none;
+}
+.form-input:focus { border-color: var(--saf); }
+
+.login-btn {
+  width: 100%;
+  padding: 13px;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  color: #fff;
+  margin-top: 8px;
+  transition: opacity 0.2s;
+}
+.login-btn:hover { opacity: 0.88; }
+.btn-student { background: var(--saf); }
+.btn-teacher { background: var(--grn); }
+
+.error-msg {
+  color: var(--red);
+  font-size: 13px;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.toggle-text {
+  text-align: center;
+  font-size: 13px;
+  color: #9A8070;
+  margin-top: 16px;
+}
+.toggle-link {
+  color: var(--saf);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.demo-creds {
+  margin-top: 20px;
+  padding: 12px;
+  background: var(--saf2);
+  border-radius: 10px;
+  font-size: 11px;
+  color: var(--mid);
+  line-height: 1.6;
+}

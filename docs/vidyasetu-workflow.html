@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VidyaSetu — Platform Workflow</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --saf: #D4580A;
+    --saf-light: #FFF0D6;
+    --saf-dark: #A03A00;
+    --grn: #2A6B4A;
+    --grn-light: #E8F5EE;
+    --dark: #1A0A00;
+    --mid: #6B3A1A;
+    --cream: #FFFDF8;
+    --grey: #F5F0EB;
+    --border: #E8D5B8;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--dark);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--dark);
+    padding: 28px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .logo { display: flex; flex-direction: column; gap: 2px; }
+  .logo-main {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    color: var(--saf);
+    letter-spacing: -0.5px;
+  }
+  .logo-sub { font-size: 12px; color: #C8A87A; letter-spacing: 1px; text-transform: uppercase; }
+  .header-stats {
+    display: flex; gap: 24px;
+  }
+  .stat { text-align: center; }
+  .stat-num { font-size: 20px; font-weight: 600; color: var(--saf); }
+  .stat-label { font-size: 10px; color: #9A8070; letter-spacing: 1px; text-transform: uppercase; }
+
+  /* TABS */
+  .tab-bar {
+    display: flex;
+    background: var(--dark);
+    border-top: 1px solid #2A1A0A;
+    padding: 0 40px;
+  }
+  .tab-btn {
+    padding: 14px 32px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    border: none;
+    background: transparent;
+    color: #7A6050;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+  .tab-btn:hover { color: #C8A87A; }
+  .tab-btn.active-student { color: var(--saf); border-bottom-color: var(--saf); }
+  .tab-btn.active-teacher { color: #5DBF8A; border-bottom-color: #5DBF8A; }
+
+  /* CONTENT */
+  .content { display: none; padding: 40px; max-width: 1000px; margin: 0 auto; }
+  .content.active { display: block; }
+
+  /* SECTION TITLE */
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    margin-bottom: 6px;
+  }
+  .section-title.student { color: var(--saf); }
+  .section-title.teacher { color: var(--grn); }
+  .section-desc { font-size: 14px; color: var(--mid); margin-bottom: 36px; font-weight: 300; }
+
+  /* WORKFLOW STEPS */
+  .steps { display: flex; flex-direction: column; gap: 0; }
+
+  .step {
+    display: flex;
+    gap: 0;
+    position: relative;
+  }
+
+  /* vertical line */
+  .step:not(:last-child) .step-line::after {
+    content: '';
+    position: absolute;
+    left: 19px;
+    top: 52px;
+    width: 2px;
+    height: calc(100% - 20px);
+    background: var(--border);
+  }
+
+  .step-line {
+    position: relative;
+    width: 40px;
+    flex-shrink: 0;
+    padding-top: 14px;
+  }
+
+  .step-dot {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+  }
+  .student .step-dot { background: var(--saf); color: white; }
+  .teacher .step-dot { background: var(--grn); color: white; }
+
+  .step-body {
+    flex: 1;
+    padding: 0 0 32px 24px;
+  }
+
+  .step-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .step-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(212,88,10,0.08); }
+
+  .step-header {
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .student .step-header { background: var(--saf-light); }
+  .teacher .step-header { background: var(--grn-light); }
+
+  .step-title {
+    font-weight: 600;
+    font-size: 15px;
+  }
+  .student .step-title { color: var(--saf-dark); }
+  .teacher .step-title { color: var(--grn); }
+
+  .step-toggle {
+    font-size: 18px;
+    color: #B0907A;
+    transition: transform 0.2s;
+    font-weight: 300;
+  }
+  .step-card.open .step-toggle { transform: rotate(45deg); }
+
+  .step-details {
+    display: none;
+    padding: 20px;
+    border-top: 1px solid var(--border);
+  }
+  .step-card.open .step-details { display: block; }
+
+  .detail-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 10px;
+    align-items: flex-start;
+  }
+  .detail-row:last-child { margin-bottom: 0; }
+
+  .detail-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .student .detail-icon { background: var(--saf-light); }
+  .teacher .detail-icon { background: var(--grn-light); }
+
+  .detail-text { font-size: 13px; color: #4A2A0A; line-height: 1.6; }
+  .teacher .detail-text { color: #1A3A2A; }
+
+  .detail-note {
+    margin-top: 14px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-style: italic;
+    color: #8A6040;
+  }
+  .student .detail-note { background: #FFF8EE; border-left: 3px solid var(--saf); }
+  .teacher .detail-note { background: #F0FFF6; border-left: 3px solid var(--grn); color: #2A5A3A; }
+
+  /* STATE PILLS */
+  .state-pills {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px dashed var(--border);
+  }
+  .pill {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  .pill-locked { background: #F0EDE8; color: #9A8070; }
+  .pill-active { background: #E8F5EE; color: var(--grn); }
+  .pill-watch  { background: #FFF0D6; color: var(--saf); }
+  .pill-exam   { background: #FFF3E0; color: #B35A00; }
+
+  /* SUMMARY BAR */
+  .summary {
+    margin-top: 40px;
+    background: var(--dark);
+    border-radius: 16px;
+    padding: 28px 32px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+  }
+  .summary-item { text-align: center; }
+  .summary-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    color: var(--saf);
+  }
+  .teacher-tab .summary-num { color: #5DBF8A; }
+  .summary-label { font-size: 11px; color: #7A6050; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+
+  /* EXPAND ALL */
+  .controls {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 20px;
+    gap: 8px;
+  }
+  .ctrl-btn {
+    padding: 7px 16px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: white;
+    color: var(--mid);
+    transition: all 0.15s;
+  }
+  .ctrl-btn:hover { border-color: var(--saf); color: var(--saf); }
+
+  @media (max-width: 640px) {
+    header { flex-direction: column; gap: 16px; text-align: center; }
+    .header-stats { justify-content: center; }
+    .content { padding: 24px 16px; }
+    .summary { grid-template-columns: repeat(2,1fr); }
+    .tab-btn { padding: 12px 16px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-main">VidyaSetu</div>
+    <div class="logo-sub">विद्यासेतु — Bridge of Knowledge</div>
+  </div>
+  <div class="header-stats">
+    <div class="stat"><div class="stat-num">20</div><div class="stat-label">Teachers</div></div>
+    <div class="stat"><div class="stat-num">100</div><div class="stat-label">Students</div></div>
+    <div class="stat"><div class="stat-num">100</div><div class="stat-label">Subjects</div></div>
+    <div class="stat"><div class="stat-num">7</div><div class="stat-label">Batches</div></div>
+  </div>
+</header>
+
+<div class="tab-bar">
+  <button class="tab-btn active-student" onclick="showTab('student')">🎓 Student Workflow</button>
+  <button class="tab-btn" onclick="showTab('teacher')">📖 Teacher Workflow</button>
+</div>
+
+<!-- STUDENT -->
+<div id="student" class="content active">
+  <div class="section-title student">Student Experience</div>
+  <div class="section-desc">How a student accesses classes, recordings and exams from one portal — no app needed.</div>
+
+  <div class="controls">
+    <button class="ctrl-btn" onclick="expandAll('student')">Expand All</button>
+    <button class="ctrl-btn" onclick="collapseAll('student')">Collapse All</button>
+  </div>
+
+  <div class="steps student">
+
+    <div class="step">
+      <div class="step-line"><div class="step-dot">1</div></div>
+      <div class="step-body">
+        <div class="step-card" onclick="toggle(this)">
+          <div class="step-header">
+            <div class="step-title">Login to College Portal</div>
+            <div class="step-toggle">+</div>
+          </div>
+          <div class="step-details">
+            <div class="detail-row">
+              <div class="detail-icon">🌐</div>
+              <div class="detail-text">Open the college portal from any browser — phone, tablet or laptop. No app download needed.</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-icon">🔑</div>
+              <div class="detail-text">Enter your username and password provided by the admin at the time of enrollment.</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-icon">📋</div>
+              <div class="detail-text">On login, the dashboard opens directly showing today's timetable and any pending exams.</div>
+            </div>
+            <div class="detail-note">Your login credentials are set up by the college admin. Contact admin if you face any login issues.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-line"><div class="step-dot">2</div></div>
+      <div class="step-body">
+        <div class="step-card" onclick="toggle(this)">
+          <div class="step-header">
+            <div class="step-title">View Your Timetable</div>
+            <div class="step-toggle">+</div>
+          </div>
+          <div class="step-details">
+            <div class="detail-row">
+              <div class="detail-icon">📅</div>
+              <div class="detail-text">The timetable shows all your classes for the day — subject, batch, and scheduled time listed clearly.</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-icon">🔒</div>
+              <div class="detail-text">Upcoming classes show a locked JOIN button with the exact start time — you cannot join early.</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-icon">📝</div>
+              <div class="detail-text">Any scheduled exams also appear in the timetable — you can see the subject and start time in advance.</div>
+            </div>
+            <div class="state-pills">
+              <span class="pill pill-locked">🔒 Upcoming — Locked</span>
+              <span class="pill pill-active">✅ Active — JOIN NOW</span>
+              <span class="pill pill-watch">▶ Ended — Watch Recording</span>
+              <span class="pill pill-exam">📝 Exam Due — Start Exam</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-line"><div class="step-dot">3</div></div>
+      <div class="step-body">
+        <div class="step-card" onclick="toggle(this)">
+          <div class="step-header">
+            <div class="step-title">Join a Pre-Recorded Class (Phase 1)</div>
+            <div class="step-toggle">+</div>
+          </div>
+          <div class="step-details">
+            <div class="detail-row">
+              <div class="detail-icon">🟢</div>
+              <div class="detail-text">At the scheduled class time, the JOIN NOW button turns green and becomes clickable — only this one active class is enabled at any time.</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-icon">▶</div>
+              <div class="detail-text">Click JOIN NOW — the pre-recorded video uploaded by your teacher starts playing directly in the portal.</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-icon">⏰</div>
+              <div class="detail-text">The video link expires automatically after the class window — you cannot access it before or after the scheduled time (except via Watch Recording).</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-icon">✅</div>
+              <div class="detail-text">Attendance is marked automatically the moment you click and the video starts — no manual action needed.</div>
+            </div>
+            <div class="detail-note">If you miss the class window, the recording will be available under Watch Recording after the session ends.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-line"><div class="step-dot">4</div></div>
+      <div class="step-body">
+        <div class="step-card" onclick="toggle(this)">
+          <div class="step-header">
+            <div class="step-title">Join a Live Class (Phase 2)</div>
+            <div class="step-toggle">+</div>
+          </div>
+          <div class="step-details">
+            <div class="detail-row">
+              <div class="detail-icon">🟢</div>
+              <div class="detail-text">At the scheduled time, the JOIN NOW button activates — click it and the live class opens inside the portal. No external app or link needed.</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-icon">🎥</div>
+              <div class="detail-text">You can see and hear your teacher live, ask questions, and interact during the session.</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-icon">🔴</div>
+              <div class="detail-text">The session is being recorded automatically. You do not need to do anything — the recording becomes available after the class ends.</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-icon">✅</div>
+              <div class="detail-text">Attendance is auto-marked when you join the live session.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-line"><div class="step-dot">5</div></div>
+      <div class="step-body">
+        <div class="step-card" onclick="toggle(this)">
+          <div class="step-header">
+            <div class="step-title">Watch Past Recordings</div>
+            <div class="step-toggle">+</div>
+          </div>
+          <div class="step-details">
+            <div class="detail-row">
+              <div class="detail-icon">▶</div>
+              <div class="detail-text">After a class ends, a Watch Recording button appears next to that class in your timetable.</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-icon">📂</div>
+              <div class="detail-text">All past recordings remain accessible anytime — you can revisit any previous class for revision.</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-icon">🔐</div>
+              <div class="detail-text">Recordings are only accessible through your portal login — they cannot be downloaded or shared outside.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-line"><div class="step-dot">6</div></div>
+      <div class="step-body">
+        <div class="step-card" onclick="toggle(this)">
+          <div class="step-header">
+            <div class="step-title">Take an Online Exam (Phase 2)</div>
+            <div class="step-toggle">+</div>
+          </div>
+          <div class="step-details">
+            <div class="detail-row">
+              <div class="detail-icon">📝</div>
+              <div class="detail-text">When your teacher schedules an exam, it appears in your timetable with a Start Exam button on the exam date and time.</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-icon">⏱</div>
+              <div class="detail-text">Click Start Exam — the question paper opens and a countdown timer starts. The exam auto-submits when time runs out.</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-icon">💾</div>
+              <div class="detail-text">Your answers are saved automatically as you go — no need to worry about losing progress.</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-icon">🏆</div>
+              <div class="detail-text">Once the teacher enters the answer key, your score and answer sheet are visible in your portal — no waiting for manual correction.</div>
+            </div>
+            <div class="detail-note">Results are published only after the teacher reviews and approves them. You will see your score and the correct answers side by side.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end steps -->
+
+  <div class="summary">
+    <div class="summary-item"><div class="summary-num">1</div><div class="summary-label">Login Screen</div></div>
+    <div class="summary-item"><div class="summary-num">0</div><div class="summary-label">Apps to Install</div></div>
+    <div class="summary-item"><div class="summary-num">Auto</div><div class="summary-label">Attendance</div></div>
+    <div class="summary-item"><div class="summary-num">Auto</div><div class="summary-label">Exam Scoring</div></div>
+  </div>
+</div>
+
+
+<!-- TEACHER -->
+<div id="teacher" class="content teacher-tab">
+  <div class="section-title teacher">Teacher Experience</div>
+  <div class="section-desc">How a teacher manages content, conducts classes, sets exams and tracks attendance — all from one dashboard.</div>
+
+  <div class="controls">
+    <button class="ctrl-btn" onclick="expandAll('teacher')">Expand All</button>
+    <button class="ctrl-btn" onclick="collapseAll('teacher')">Collapse All</button>
+  </div>
+
+  <div class="steps teacher">
+
+    <div class="step">
+      <div class="step-line"><div class="step-dot">1</div></div>
+      <div class="step-body">
+        <div class="step-card" onclick="toggle(this)">
+          <div class="step-header">
+            <div class="step-title">Login & Teacher Dashboard</div>
+            <div class="step-toggle">+</div>
+          </div>
+          <div class="step-details">
+            <div class="detail-row">
+              <div class="detail-icon">🌐</div>
+              <div class="detail-text">Open the college portal from any browser and log in with your teacher credentials set by the admin.</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-icon">📊</div>
+              <div class="detail-text">Your dashboard shows today's scheduled classes, upcoming exams, pending actions, and recent attendance summaries.</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-icon">📋</div>
+              <div class="detail-text">You can see which subjects and batches are assigned to you, and the full weekly timetable at a glance.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-line"><div class="step-dot">2</div></div>
+      <div class="step-body">
+        <div class="step-card" onclick="toggle(this)">
+          <div class="step-header">
+            <div class="step-title">Upload Pre-Recorded Video (Phase 1)</div>
+            <div class="step-toggle">+</div>
+          </div>
+          <div class="step-details">
+            <div class="detail-row">
+              <div class="detail-icon">📤</div>
+              <div class="detail-text">Go to your subject — click Upload Video and select the recorded lesson file from your device.</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-icon">🏷</div>
+              <div class="detail-text">Add a title, select the batch and subject — the system links it to the timetable slot automatically.</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-icon">📅</div>
+              <div class="detail-text">The video is stored securely and will unlock for students only at the timetable slot date and time. It expires after the class window automatically.</div>
+            </div>
+            <div class="detail-note">You can upload videos in advance — they will not be visible to students until the scheduled time.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-line"><div class="step-dot">3</div></div>
+      <div class="step-body">
+        <div class="step-card" onclick="toggle(this)">
+          <div class="step-header">
+            <div class="step-title">Conduct a Live Class (Phase 2)</div>
+            <div class="step-toggle">+</div>
+          </div>
+          <div class="step-details">
+            <div class="detail-row">
+              <div class="detail-icon">🟢</div>
+              <div class="detail-text">At the scheduled class time, a Start Class button appears on your dashboard for that subject and batch.</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-icon">🎥</div>
+              <div class="detail-text">Click Start Class — the live video room opens directly inside your portal. No external tool or link needed. Students will see the JOIN NOW button activate on their side simultaneously.</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-icon">🔴</div>
+              <div class="detail-text">The session is recorded automatically from the moment you start — you do not need to press any record button.</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-icon">🔚</div>
+              <div class="detail-text">Click End Class when done — the room closes for all students. The recording is saved and made available for Watch Recording automatically.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-line"><div class="step-dot">4</div></div>
+      <div class="step-body">
+        <div class="step-card" onclick="toggle(this)">
+          <div class="step-header">
+            <div class="step-title">Set & Publish an Exam (Phase 2)</div>
+            <div class="step-toggle">+</div>
+          </div>
+          <div class="step-details">
+            <div class="detail-row">
+              <div class="detail-icon">📝</div>
+              <div class="detail-text">Go to Exam Module — click Create Exam. Select subject, batch, exam type (MCQ or descriptive) and set the duration.</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-icon">➕</div>
+              <div class="detail-text">Add questions one by one. For MCQ — add four options and mark the correct answer (used for auto-scoring). For descriptive — add the question and marks.</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-icon">📅</div>
+              <div class="detail-text">Set the exam date and time — it will appear in the student timetable automatically. Students cannot see the questions until the exam starts.</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-icon">👁</div>
+              <div class="detail-text">During the exam, you can monitor who has started and who has submitted from your teacher dashboard.</div>
+            </div>
+            <div class="detail-note">Once published, the exam date cannot be changed. Make sure the timetable slot is free before scheduling.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-line"><div class="step-dot">5</div></div>
+      <div class="step-body">
+        <div class="step-card" onclick="toggle(this)">
+          <div class="step-header">
+            <div class="step-title">Enter Answer Key & Publish Results (Phase 2)</div>
+            <div class="step-toggle">+</div>
+          </div>
+          <div class="step-details">
+            <div class="detail-row">
+              <div class="detail-icon">🗝</div>
+              <div class="detail-text">After the exam window closes, go to the exam in your dashboard — click Enter Answer Key.</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-icon">⚡</div>
+              <div class="detail-text">Once you submit the key, the system automatically calculates scores for all students who appeared — instantly, no manual checking needed.</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-icon">👀</div>
+              <div class="detail-text">Review the auto-calculated scores on screen — you can adjust marks manually if needed before publishing.</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-icon">📢</div>
+              <div class="detail-text">Click Publish Results — students immediately see their score and answer sheet in their portal. A batch-wise and subject-wise report is also generated for you.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-line"><div class="step-dot">6</div></div>
+      <div class="step-body">
+        <div class="step-card" onclick="toggle(this)">
+          <div class="step-header">
+            <div class="step-title">View Attendance & Reports</div>
+            <div class="step-toggle">+</div>
+          </div>
+          <div class="step-details">
+            <div class="detail-row">
+              <div class="detail-icon">📊</div>
+              <div class="detail-text">Attendance is auto-tracked for every session — pre-recorded and live. No manual marking needed at any point.</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-icon">🧑‍🎓</div>
+              <div class="detail-text">View per-student attendance — see how many classes each student attended, by subject or by date range.</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-icon">📋</div>
+              <div class="detail-text">Class-wise attendance summary shows the total count of students who joined each session.</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-icon">⬇</div>
+              <div class="detail-text">All reports — attendance and exam results — can be downloaded for submission to the administration.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end steps -->
+
+  <div class="summary">
+    <div class="summary-item"><div class="summary-num">Auto</div><div class="summary-label">Attendance</div></div>
+    <div class="summary-item"><div class="summary-num">Auto</div><div class="summary-label">Recording</div></div>
+    <div class="summary-item"><div class="summary-num">Auto</div><div class="summary-label">Exam Scoring</div></div>
+    <div class="summary-item"><div class="summary-num">0</div><div class="summary-label">Manual Steps</div></div>
+  </div>
+</div>
+
+<script>
+function showTab(tab) {
+  document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.className = 'tab-btn');
+  document.getElementById(tab).classList.add('active');
+  const btn = document.querySelectorAll('.tab-btn')[tab === 'student' ? 0 : 1];
+  btn.classList.add(tab === 'student' ? 'active-student' : 'active-teacher');
+}
+
+function toggle(card) {
+  card.classList.toggle('open');
+}
+
+function expandAll(tab) {
+  document.querySelectorAll('#' + tab + ' .step-card').forEach(c => c.classList.add('open'));
+}
+
+function collapseAll(tab) {
+  document.querySelectorAll('#' + tab + ' .step-card').forEach(c => c.classList.remove('open'));
+}
+</script>
+</body>
+</html>

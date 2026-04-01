@@ -1,0 +1,114 @@
+.dashboard { padding: 24px 0; }
+
+.greeting {
+  border-radius: 16px;
+  padding: 24px;
+  color: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+.greeting-student { background: linear-gradient(135deg, var(--saf), var(--saf3)); }
+.greeting-teacher { background: linear-gradient(135deg, var(--grn), #1A4A30); }
+.greeting h2 { font-size: 24px; margin-bottom: 4px; }
+.greeting p { font-size: 14px; opacity: 0.85; }
+.greeting-sanskrit {
+  font-size: 32px;
+  opacity: 0.3;
+  font-weight: 600;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+.stat-card {
+  background: var(--white);
+  border-radius: 14px;
+  padding: 20px;
+  text-align: center;
+  border: 1px solid var(--border);
+}
+.stat-number { font-size: 32px; font-weight: 700; color: var(--saf); }
+.stat-label { font-size: 12px; color: #9A8070; margin-top: 4px; text-transform: uppercase; }
+
+.section { margin-bottom: 32px; }
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.section-header h3 { font-size: 18px; }
+.section-link {
+  color: var(--saf);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.class-list { display: flex; flex-direction: column; gap: 12px; }
+.class-card {
+  background: var(--white);
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  display: flex;
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+.class-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+.class-accent { width: 6px; flex-shrink: 0; }
+.accent-student { background: var(--saf); }
+.accent-teacher { background: var(--grn); }
+.class-info { padding: 16px; flex: 1; }
+.class-info h4 { font-size: 15px; margin-bottom: 4px; }
+.class-desc { font-size: 13px; color: #9A8070; margin-bottom: 8px; }
+.class-meta {
+  display: flex;
+  gap: 16px;
+  font-size: 12px;
+  color: var(--mid);
+}
+
+.assignment-list { display: flex; flex-direction: column; gap: 8px; }
+.assignment-card {
+  background: var(--white);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  padding: 14px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.assignment-info h4 { font-size: 14px; margin-bottom: 2px; }
+.assignment-info p { font-size: 12px; color: #9A8070; }
+.assignment-meta { display: flex; gap: 8px; align-items: center; }
+.due-date { font-size: 12px; color: var(--mid); }
+.submitted-badge {
+  background: var(--grn2);
+  color: var(--grn);
+  padding: 3px 10px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.marks-badge {
+  background: var(--saf2);
+  color: var(--saf);
+  padding: 3px 10px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.empty {
+  text-align: center;
+  color: #B09080;
+  font-size: 14px;
+  padding: 32px;
+  background: var(--white);
+  border-radius: 14px;
+  border: 1px solid var(--border);
+}

@@ -1,0 +1,76 @@
+.navbar {
+  padding: 0 24px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.navbar-student { background: var(--saf); }
+.navbar-teacher { background: var(--grn); }
+
+.nav-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav-brand { display: flex; flex-direction: column; }
+.brand-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  color: #fff;
+  line-height: 1.1;
+}
+.brand-tag {
+  font-size: 10px;
+  color: rgba(255,255,255,0.7);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.nav-links {
+  display: flex;
+  gap: 24px;
+}
+.nav-links a {
+  color: rgba(255,255,255,0.85);
+  font-weight: 500;
+  font-size: 14px;
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: #fff; }
+
+.nav-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.user-badge {
+  background: rgba(255,255,255,0.2);
+  color: #fff;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.user-name {
+  color: #fff;
+  font-weight: 500;
+  font-size: 14px;
+}
+.logout-btn {
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.3);
+  color: #fff;
+  padding: 6px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  transition: background 0.2s;
+}
+.logout-btn:hover { background: rgba(255,255,255,0.25); }
