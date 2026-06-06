@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import './Dashboard.css';
-export default Dashboard;
 export default function Dashboard() {
   const { user, API } = useAuth();
   const [classes, setClasses] = useState([]);

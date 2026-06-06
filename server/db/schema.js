@@ -92,6 +92,17 @@ function initializeDb() {
       FOREIGN KEY (student_id) REFERENCES users(id),
       UNIQUE(class_id, student_id, date)
     );
+
+    CREATE TABLE IF NOT EXISTS video_rooms (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  class_id INTEGER NOT NULL,
+  host_id INTEGER NOT NULL,
+  room_code TEXT UNIQUE NOT NULL,
+  started_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  ended_at DATETIME,
+  FOREIGN KEY (class_id) REFERENCES classes(id),
+  FOREIGN KEY (host_id) REFERENCES users(id)
+);
   `);
 
   db.close();

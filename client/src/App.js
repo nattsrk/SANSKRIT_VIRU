@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard';
 import Classes from './pages/Classes';
 import ClassDetail from './pages/ClassDetail';
 import Assignments from './pages/Assignments';
+import TestSocket from './pages/TestSocket';
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -20,12 +21,19 @@ function AppRoutes() {
     <>
       <Navbar />
       <Routes>
+
         <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <Login />} />
+
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/classes" element={<ProtectedRoute><Classes /></ProtectedRoute>} />
         <Route path="/classes/:id" element={<ProtectedRoute><ClassDetail /></ProtectedRoute>} />
         <Route path="/assignments" element={<ProtectedRoute><Assignments /></ProtectedRoute>} />
+
+        {/* ✅ FIXED LINE (moved inside Routes) */}
+        <Route path="/test-socket" element={<ProtectedRoute><TestSocket /></ProtectedRoute>} />
+
         <Route path="*" element={<Navigate to={user ? "/dashboard" : "/login"} />} />
+
       </Routes>
     </>
   );
