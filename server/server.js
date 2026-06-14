@@ -54,7 +54,7 @@ app.get('/test-room', (req, res) => {
     INSERT INTO video_rooms
     (class_id, host_id, room_code)
     VALUES (?, ?, ?)
-  `).run(2, 3, 'cbc123');
+  `).run(3, 3, 'rskjh123');
 
   res.json({
     roomId: result.lastInsertRowid
@@ -69,7 +69,7 @@ app.get('/test-end-room', (req, res) => {
   db.prepare(`
     UPDATE video_rooms
     SET ended_at = CURRENT_TIMESTAMP
-    WHERE id = 2
+    WHERE id = 1
   `).run();
 
   res.json({ success: true });
@@ -92,10 +92,45 @@ const io = new Server(httpServer, { cors: { origin: '*' } });
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
 
-  socket.on('join-room', (roomId) => {
+ socket.on(
+  'join-room',
+  ({ roomId, userName }) => {
+
+    socket.userName = userName;
+
     socket.join(roomId);
-    socket.to(roomId).emit('user-joined', socket.id);
-  });
+
+    const room =
+      io.sockets.adapter.rooms.get(roomId);
+
+    const clients =
+      room ? Array.from(room) : [];
+
+    const users = clients.map(id => {
+      const s =
+        io.sockets.sockets.get(id);
+
+      return {
+        id,
+        name: s?.userName || 'Unknown'
+      };
+    });
+
+    socket.emit(
+      'existing-users',
+      users.filter(
+        u => u.id !== socket.id
+      )
+    );
+
+    socket.to(roomId).emit(
+      'user-joined',
+      {
+        id: socket.id,
+        name: userName
+      }
+    );
+});
 
   socket.on('offer', ({ to, offer }) => {
     io.to(to).emit('offer', { from: socket.id, offer });
@@ -108,11 +143,48 @@ io.on('connection', (socket) => {
   socket.on('ice-candidate', ({ to, candidate }) => {
     io.to(to).emit('ice-candidate', { from: socket.id, candidate });
   });
+  
+  socket.on(
+  'leave-room',
+  ({ roomId, role }) => {
 
-  socket.on('disconnect', () => {
-    console.log('User disconnected:', socket.id);
-  });
+    socket.leave(roomId);
+
+    if (role === 'teacher') {
+
+      socket.to(roomId).emit(
+        'teacher-ended'
+      );
+
+    } else {
+
+      socket.to(roomId).emit(
+        'student-left',
+        socket.id
+      );
+
+    }
+  }
+);
+
+socket.on('disconnect', () => {
+
+  socket.broadcast.emit(
+    'student-left',
+    socket.id
+  );
+
+  console.log(
+    'User disconnected:',
+    socket.id
+  );
+
 });
-  httpServer.listen(PORT, () => {
-  console.log(`VidyaSetu server running on http://localhost:${PORT}`);
+
+}); 
+
+httpServer.listen(PORT, () => {
+  console.log(
+    `VidyaSetu server running on http://localhost:${PORT}`
+  );
 });

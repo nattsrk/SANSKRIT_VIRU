@@ -7,6 +7,7 @@ import Classes from './pages/Classes';
 import ClassDetail from './pages/ClassDetail';
 import Assignments from './pages/Assignments';
 import TestSocket from './pages/TestSocket';
+import VideoRoom from './pages/VideoRoom';
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -29,8 +30,10 @@ function AppRoutes() {
         <Route path="/classes/:id" element={<ProtectedRoute><ClassDetail /></ProtectedRoute>} />
         <Route path="/assignments" element={<ProtectedRoute><Assignments /></ProtectedRoute>} />
 
-        {/* ✅ FIXED LINE (moved inside Routes) */}
+        
         <Route path="/test-socket" element={<ProtectedRoute><TestSocket /></ProtectedRoute>} />
+        <Route path="/room/:roomId" element={<ProtectedRoute><VideoRoom /></ProtectedRoute>} />
+        <Route path="/test-video" element={<h1>VIDEO ROOM WORKS</h1>} />
 
         <Route path="*" element={<Navigate to={user ? "/dashboard" : "/login"} />} />
 

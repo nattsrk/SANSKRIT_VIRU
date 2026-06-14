@@ -1,0 +1,71 @@
+.video-room {
+  padding: 30px;
+}
+
+.video-title {
+  text-align: center;
+  color: #6b3f14;
+  margin-bottom: 25px;
+}
+
+.video-grid {
+  display: flex;
+  justify-content: center;
+  gap: 25px;
+  flex-wrap: wrap;
+}
+
+.video-card {
+  background: white;
+  padding: 15px;
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.video-card h3 {
+  text-align: center;
+  color: #6b3f14;
+}
+
+.video-card video {
+  width: 450px;
+  border-radius: 10px;
+  background: black;
+}
+
+.video-controls {
+  margin-top: 25px;
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.control-btn {
+  background: #d97706;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 25px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.control-btn:hover {
+  background: #b45309;
+}
+
+.leave-btn {
+  background: #dc2626;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 25px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.leave-btn:hover {
+  background: #b91c1c;
+}

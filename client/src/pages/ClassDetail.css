@@ -136,3 +136,26 @@
   color: #9A8070;
   font-size: 16px;
 }
+
+.class-action {
+  margin-top: 25px;
+  text-align: center;
+}
+
+.live-class-btn {
+  width: 320px;
+  max-width: 100%;
+  background: #d97706;
+  color: white;
+  border: none;
+  padding: 16px;
+  border-radius: 12px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+.live-class-btn:hover {
+  background: #b45309;
+}
