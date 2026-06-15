@@ -28,9 +28,7 @@ function AppRoutes() {
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/classes" element={<ProtectedRoute><Classes /></ProtectedRoute>} />
         <Route path="/classes/:id" element={<ProtectedRoute><ClassDetail /></ProtectedRoute>} />
-        <Route path="/assignments" element={<ProtectedRoute><Assignments /></ProtectedRoute>} />
-
-        
+        <Route path="/assignments" element={<ProtectedRoute><Assignments /></ProtectedRoute>} /> 
         <Route path="/test-socket" element={<ProtectedRoute><TestSocket /></ProtectedRoute>} />
         <Route path="/room/:roomId" element={<ProtectedRoute><VideoRoom /></ProtectedRoute>} />
         <Route path="/test-video" element={<h1>VIDEO ROOM WORKS</h1>} />

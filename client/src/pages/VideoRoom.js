@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+meimport React, { useEffect, useRef, useState } from 'react';
 import { io } from 'socket.io-client';
 import { useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -487,7 +487,7 @@ return peer;
 
     const mediaStream =
       await navigator.mediaDevices.getUserMedia({
-        video: false,
+        video: true,
         audio: true
       });
       console.log(
