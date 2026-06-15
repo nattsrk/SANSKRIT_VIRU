@@ -10,7 +10,8 @@
     "seed": "cd server && npm run seed"
   },
   "devDependencies": {
-    "concurrently": "^9.1.2"
+    "concurrently": "^9.1.2",
+    "gh-pages": "^6.3.0"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
