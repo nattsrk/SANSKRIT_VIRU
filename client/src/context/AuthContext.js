@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 import createMockAPI from './mockData';
+import { API_BASE } from '../config';
 
 const AuthContext = createContext(null);
 
@@ -8,7 +9,7 @@ const AuthContext = createContext(null);
 const isDemo = window.location.hostname.includes('github.io') || process.env.REACT_APP_DEMO === 'true';
 const API = isDemo
   ? createMockAPI()
-  : axios.create({ baseURL: 'http://localhost:5001/api' });
+  : axios.create({ baseURL: `${API_BASE}/api` });
 
 if (!isDemo) {
   API.interceptors.request.use((config) => {

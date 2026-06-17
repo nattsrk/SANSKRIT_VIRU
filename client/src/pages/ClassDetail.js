@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import './ClassDetail.css';
+import { API_BASE } from '../config';
 
 export default function ClassDetail() {
   const { id } = useParams();
@@ -17,7 +18,7 @@ export default function ClassDetail() {
   try {
 
     const res = await fetch(
-      'http://localhost:5001/api/rooms/start',
+      `${API_BASE}/api/rooms/start`,
       {
         method: 'POST',
         headers: {

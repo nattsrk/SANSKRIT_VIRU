@@ -1,6 +1,7 @@
 import { io } from "socket.io-client";
+import { API_BASE } from './config';
 
-const socket = io("http://localhost:5001", {
+const socket = io(API_BASE, {
   transports: ["websocket", "polling"]
 });
 

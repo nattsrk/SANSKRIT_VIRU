@@ -5,6 +5,7 @@ const path = require('path');
 const { initializeDb } = require('./db/schema');
 const http = require('http');
 const { Server } = require('socket.io');
+
 // Initialize database tables
 initializeDb();
 
@@ -21,10 +22,12 @@ app.use('/api/classes', require('./routes/classes'));
 app.use('/api/assignments', require('./routes/assignments'));
 app.use('/api/attendance', require('./routes/attendance'));
 app.use('/api/rooms', require('./routes/rooms'));
+
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', name: 'VidyaSetu API' });
 });
+
 const { getDb } = require('./db/schema');
 app.get('/api/health/details', (req, res) => {
   try {
@@ -47,6 +50,7 @@ app.get('/api/health/details', (req, res) => {
     });
   }
 });
+
 app.get('/test-room', (req, res) => {
   const db = getDb();
 
@@ -85,52 +89,38 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
-
 const httpServer = http.createServer(app);
 const io = new Server(httpServer, { cors: { origin: '*' } });
 
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
 
- socket.on(
-  'join-room',
-  ({ roomId, userName }) => {
-
+  socket.on('join-room', ({ roomId, userName, role }) => {
+    // Bind context attributes directly to socket instances for sudden disconnections
     socket.userName = userName;
+    socket.roomId = roomId;
+    socket.role = role || 'student'; 
 
     socket.join(roomId);
 
-    const room =
-      io.sockets.adapter.rooms.get(roomId);
-
-    const clients =
-      room ? Array.from(room) : [];
+    const room = io.sockets.adapter.rooms.get(roomId);
+    const clients = room ? Array.from(room) : [];
 
     const users = clients.map(id => {
-      const s =
-        io.sockets.sockets.get(id);
-
+      const s = io.sockets.sockets.get(id);
       return {
         id,
         name: s?.userName || 'Unknown'
       };
     });
 
-    socket.emit(
-      'existing-users',
-      users.filter(
-        u => u.id !== socket.id
-      )
-    );
+    socket.emit('existing-users', users.filter(u => u.id !== socket.id));
 
-    socket.to(roomId).emit(
-      'user-joined',
-      {
-        id: socket.id,
-        name: userName
-      }
-    );
-});
+    socket.to(roomId).emit('user-joined', {
+      id: socket.id,
+      name: userName
+    });
+  });
 
   socket.on('offer', ({ to, offer }) => {
     io.to(to).emit('offer', { from: socket.id, offer });
@@ -144,47 +134,30 @@ io.on('connection', (socket) => {
     io.to(to).emit('ice-candidate', { from: socket.id, candidate });
   });
   
-  socket.on(
-  'leave-room',
-  ({ roomId, role }) => {
-
+  socket.on('leave-room', ({ roomId, role }) => {
     socket.leave(roomId);
 
     if (role === 'teacher') {
-
-      socket.to(roomId).emit(
-        'teacher-ended'
-      );
-
+      socket.to(roomId).emit('teacher-ended');
     } else {
-
-      socket.to(roomId).emit(
-        'student-left',
-        socket.id
-      );
-
+      socket.to(roomId).emit('student-left', socket.id);
     }
-  }
-);
+  });
 
-socket.on('disconnect', () => {
-
-  socket.broadcast.emit(
-    'student-left',
-    socket.id
-  );
-
-  console.log(
-    'User disconnected:',
-    socket.id
-  );
-
-});
-
+  socket.on('disconnect', () => {
+    console.log('User disconnected:', socket.id);
+    
+    // Safely cleanup session boundaries if the user drop-out was unannounced
+    if (socket.roomId) {
+      if (socket.role === 'teacher') {
+        socket.to(socket.roomId).emit('teacher-ended');
+      } else {
+        socket.to(socket.roomId).emit('student-left', socket.id);
+      }
+    }
+  });
 }); 
 
 httpServer.listen(PORT, () => {
-  console.log(
-    `VidyaSetu server running on http://localhost:${PORT}`
-  );
+  console.log(`VidyaSetu server running on http://localhost:${PORT}`);
 });
