@@ -16,20 +16,33 @@ export default function ClassDetail() {
 
   const startClass = async () => {
   try {
+    const token = localStorage.getItem('token');
+    const res = await fetch(`${API_BASE}/api/rooms/start`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        classId: id,
+        hostId: user.id
+      })
+    });
 
-    const res = await fetch(
-      `${API_BASE}/api/rooms/start`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          classId: id,
-          hostId: user.id
-        })
-      }
-    );
+    const data = await res.json();
+    console.log(data);
+
+    if (data.roomId) {
+      navigate(`/room/${data.roomId}`);
+    } else {
+      alert('Failed to start class: ' + (data.error || 'Unknown error'));
+    }
+
+  } catch (err) {
+    console.error(err);
+    alert('Failed to start class');
+  }
+};
 
     const data = await res.json();
 

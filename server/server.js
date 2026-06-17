@@ -9,6 +9,14 @@ const { Server } = require('socket.io');
 // Initialize database tables
 initializeDb();
 
+const db = getDb();
+const userCount = db.prepare('SELECT COUNT(*) as c FROM users').get();
+if (userCount.c === 0) {
+  console.log('Database empty, seeding...');
+  require('./db/seed.js');
+}
+db.close();
+
 const app = express();
 const PORT = process.env.PORT || 5001;
 
