@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import './ClassDetail.css';
-import { API_BASE } from '../config';
 
 export default function ClassDetail() {
   const { id } = useParams();
@@ -16,20 +15,11 @@ export default function ClassDetail() {
 
   const startClass = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const res = await fetch(`${API_BASE}/api/rooms/start`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          classId: id,
-          hostId: user.id
-        })
+      const { data } = await API.post('/rooms/start', {
+        classId: id,
+        hostId: user.id
       });
 
-      const data = await res.json();
       console.log(data);
 
       if (data.roomId) {
@@ -40,7 +30,8 @@ export default function ClassDetail() {
 
     } catch (err) {
       console.error(err);
-      alert('Failed to start class');
+      const message = err?.response?.data?.error || 'Failed to start class';
+      alert(message);
     }
   };
 

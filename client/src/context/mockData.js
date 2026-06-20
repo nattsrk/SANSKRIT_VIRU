@@ -35,6 +35,9 @@ const STUDENTS = [
 // Track submissions in memory
 let submissions = {};
 
+// Track active video rooms in memory: class_id -> room object
+let activeRooms = {};
+
 function getSubmissionKey(assignmentId, studentId) {
   return `${assignmentId}-${studentId}`;
 }
@@ -102,6 +105,36 @@ function createMockAPI() {
       const newClass = { id: Date.now(), ...body, teacher_id: user.id, teacher_name: user.name, subject: body.subject || 'Sanskrit', student_count: 0 };
       CLASSES.push(newClass);
       return mockResponse(newClass, 201);
+    },
+
+    'GET /rooms/:classId/active': (_, user, params) => {
+      const room = activeRooms[params.classId];
+      if (room) {
+        return mockResponse({ active: true, room });
+      }
+      return mockResponse({ active: false });
+    },
+
+    'POST /rooms/start': (body, user) => {
+      const room = {
+        id: Date.now(),
+        class_id: body.classId,
+        host_id: user.id,
+        room_code: Math.random().toString(36).substring(2, 8),
+        started_at: new Date().toISOString(),
+        ended_at: null,
+      };
+      activeRooms[body.classId] = room;
+      return mockResponse({ roomId: room.id, roomCode: room.room_code }, 201);
+    },
+
+    'POST /rooms/:id/end': (_, user, params) => {
+      for (const classId in activeRooms) {
+        if (String(activeRooms[classId].id) === String(params.id)) {
+          delete activeRooms[classId];
+        }
+      }
+      return mockResponse({ success: true });
     },
   };
 
