@@ -15,62 +15,48 @@ export default function ClassDetail() {
   const isTeacher = user.role === 'teacher';
 
   const startClass = async () => {
-  try {
-    const token = localStorage.getItem('token');
-    const res = await fetch(`${API_BASE}/api/rooms/start`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify({
-        classId: id,
-        hostId: user.id
-      })
-    });
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_BASE}/api/rooms/start`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          classId: id,
+          hostId: user.id
+        })
+      });
 
-    const data = await res.json();
-    console.log(data);
+      const data = await res.json();
+      console.log(data);
 
-    if (data.roomId) {
-      navigate(`/room/${data.roomId}`);
-    } else {
-      alert('Failed to start class: ' + (data.error || 'Unknown error'));
+      if (data.roomId) {
+        navigate(`/room/${data.roomId}`);
+      } else {
+        alert('Failed to start class: ' + (data.error || 'Unknown error'));
+      }
+
+    } catch (err) {
+      console.error(err);
+      alert('Failed to start class');
     }
-
-  } catch (err) {
-    console.error(err);
-    alert('Failed to start class');
-  }
-};
-
-    const data = await res.json();
-
-    console.log(data);
-
-    navigate(`/room/${data.roomId}`);
-
-  } catch (err) {
-
-    console.error(err);
-    alert('Failed to start class');
-
-  }
-};
+  };
 
   useEffect(() => {
-  API.get(`/classes/${id}`)
-    .then(res => setCls(res.data))
-    .catch(() => {});
+    API.get(`/classes/${id}`)
+      .then(res => setCls(res.data))
+      .catch(() => {});
 
-  API.get(`/rooms/${id}/active`)
-    .then(res => {
-      if (res.data.active) {
-        setActiveRoom(res.data.room);
-      }
-    })
-    .catch(() => {});
-}, [API, id]);
+    API.get(`/rooms/${id}/active`)
+      .then(res => {
+        if (res.data.active) {
+          setActiveRoom(res.data.room);
+        }
+      })
+      .catch(() => {});
+  }, [API, id]);
 
   if (!cls) return <div className="loading">Loading...</div>;
 
@@ -80,25 +66,25 @@ export default function ClassDetail() {
         <div>
           <div className="class-action">
 
-  {isTeacher && (
-    <button
-      className="live-class-btn"
-      onClick={startClass}
-    >
-      Start Class
-    </button>
-  )}
+            {isTeacher && (
+              <button
+                className="live-class-btn"
+                onClick={startClass}
+              >
+                Start Class
+              </button>
+            )}
 
-  {!isTeacher && activeRoom && (
-    <button
-      className="live-class-btn"
-      onClick={() => navigate(`/room/${activeRoom.id}`)}
-    >
-      Join Class
-    </button>
-  )}
+            {!isTeacher && activeRoom && (
+              <button
+                className="live-class-btn"
+                onClick={() => navigate(`/room/${activeRoom.id}`)}
+              >
+                Join Class
+              </button>
+            )}
 
-</div>
+          </div>
           <h2>{cls.title}</h2>
           <p>{cls.description}</p>
           <div className="detail-meta">

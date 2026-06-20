@@ -2,20 +2,21 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const { initializeDb } = require('./db/schema');
+const { initializeDb, getDb } = require('./db/schema');
 const http = require('http');
 const { Server } = require('socket.io');
 
 // Initialize database tables
 initializeDb();
 
-const db = getDb();
-const userCount = db.prepare('SELECT COUNT(*) as c FROM users').get();
+// Auto-seed if database is empty
+const seedCheckDb = getDb();
+const userCount = seedCheckDb.prepare('SELECT COUNT(*) as c FROM users').get();
 if (userCount.c === 0) {
   console.log('Database empty, seeding...');
   require('./db/seed.js');
 }
-db.close();
+seedCheckDb.close();
 
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -36,7 +37,6 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', name: 'VidyaSetu API' });
 });
 
-const { getDb } = require('./db/schema');
 app.get('/api/health/details', (req, res) => {
   try {
     const db = getDb();
@@ -57,6 +57,14 @@ app.get('/api/health/details', (req, res) => {
       error: err.message
     });
   }
+});
+
+app.get('/api/debug/data', (req, res) => {
+  const db = getDb();
+  const users = db.prepare('SELECT id, name, role FROM users').all();
+  const classes = db.prepare('SELECT id, title, teacher_id FROM classes').all();
+  db.close();
+  res.json({ users, classes });
 });
 
 app.get('/test-room', (req, res) => {
