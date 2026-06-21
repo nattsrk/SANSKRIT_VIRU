@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/SANSKRIT_VIRU/static/css/main.4ea7e785.css",
+    "main.css": "/SANSKRIT_VIRU/static/css/main.deb32acc.css",
     "main.js": "/SANSKRIT_VIRU/static/js/main.b1c489a8.js",
     "index.html": "/SANSKRIT_VIRU/index.html",
-    "main.4ea7e785.css.map": "/SANSKRIT_VIRU/static/css/main.4ea7e785.css.map",
+    "main.deb32acc.css.map": "/SANSKRIT_VIRU/static/css/main.deb32acc.css.map",
     "main.b1c489a8.js.map": "/SANSKRIT_VIRU/static/js/main.b1c489a8.js.map"
   },
   "entrypoints": [
-    "static/css/main.4ea7e785.css",
+    "static/css/main.deb32acc.css",
     "static/js/main.b1c489a8.js"
   ]
 }
