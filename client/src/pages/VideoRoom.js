@@ -73,6 +73,16 @@ function VideoRoom() {
     };
   }, [stream]);
 
+  // Re-attach the local stream to the video element whenever either becomes ready.
+  // This guards against the case where the <video> element mounts (after the
+  // "Connecting..." loading screen swaps out) AFTER getUserMedia() already resolved,
+  // which left srcObject never assigned and caused a black local preview.
+  useEffect(() => {
+    if (stream && localVideoRef.current) {
+      localVideoRef.current.srcObject = stream;
+    }
+  }, [stream, streamReady]);
+
   
   const createPeerConnection = (targetId, isInitiator) => {
     if (peersRef.current[targetId]) {

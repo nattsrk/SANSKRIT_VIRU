@@ -6,7 +6,7 @@ import { API_BASE } from '../config';
 const AuthContext = createContext(null);
 
 // Use real API in development, mock API on GitHub Pages
-const isDemo = window.location.hostname.includes('github.io') || process.env.REACT_APP_DEMO === 'true';
+const isDemo = false;
 const API = isDemo
   ? createMockAPI()
   : axios.create({ baseURL: `${API_BASE}/api` });
