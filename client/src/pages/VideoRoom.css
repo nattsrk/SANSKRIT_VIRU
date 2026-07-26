@@ -1,25 +1,32 @@
 .video-room {
-  padding: 30px;
+  padding: 20px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
 }
 
 .video-title {
   text-align: center;
   color: #6b3f14;
-  margin-bottom: 25px;
+  margin-bottom: 20px;
+  flex-shrink: 0;
 }
 
 .video-grid {
   display: flex;
   justify-content: center;
-  gap: 25px;
+  gap: 20px;
   flex-wrap: wrap;
+  flex: 1;
+  align-items: center;
 }
 
 .video-card {
   background: white;
   padding: 15px;
   border-radius: 15px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   width: 450px;
   flex: 0 0 450px;
   box-sizing: border-box;
@@ -28,6 +35,7 @@
 .video-card h3 {
   text-align: center;
   color: #6b3f14;
+  margin-bottom: 10px;
 }
 
 .video-card video {
@@ -39,11 +47,23 @@
   display: block;
 }
 
+/* LiveKit overrides — make sure LiveKit video fills the card */
+.video-card .lk-video-track {
+  width: 100% !important;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 10px;
+  background: black;
+  display: block;
+}
+
 .video-controls {
-  margin-top: 25px;
+  margin-top: 20px;
   display: flex;
   justify-content: center;
   gap: 15px;
+  flex-shrink: 0;
+  padding-bottom: 10px;
 }
 
 .control-btn {
@@ -55,6 +75,7 @@
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
+  transition: background 0.2s;
 }
 
 .control-btn:hover {
@@ -70,8 +91,39 @@
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
+  transition: background 0.2s;
 }
 
 .leave-btn:hover {
   background: #b91c1c;
+}
+
+.video-room-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  color: #6b3f14;
+}
+
+.video-room-loading h2 {
+  margin-bottom: 10px;
+}
+
+.video-room-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  color: #6b3f14;
+  text-align: center;
+  padding: 30px;
+}
+
+.error-highlight {
+  color: #dc2626;
+  font-weight: 600;
+  margin: 15px 0;
 }

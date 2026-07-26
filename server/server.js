@@ -31,6 +31,7 @@ app.use('/api/classes', require('./routes/classes'));
 app.use('/api/assignments', require('./routes/assignments'));
 app.use('/api/attendance', require('./routes/attendance'));
 app.use('/api/rooms', require('./routes/rooms'));
+app.use('/api/livekit', require('./routes/livekit'));
 
 // Health check
 app.get('/api/health', (req, res) => {
