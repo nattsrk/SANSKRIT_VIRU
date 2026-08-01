@@ -3,7 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
   LiveKitRoom,
-  VideoConference,
   RoomAudioRenderer,
   useTracks,
   TrackLoop,
@@ -19,7 +18,49 @@ import { API_BASE } from '../config';
 
 const LIVEKIT_URL = process.env.REACT_APP_LIVEKIT_URL || 'ws://localhost:7880';
 
-// Inner room UI — rendered inside LiveKitRoom context
+// Controls for all participants
+function RoomControls({ isTeacher, onLeave }) {
+  const room = useRoomContext();
+  const [micOn, setMicOn] = useState(true);
+  const [cameraOn, setCameraOn] = useState(true);
+  const [screenSharing, setScreenSharing] = useState(false);
+
+  const toggleMic = async () => {
+    await room.localParticipant.setMicrophoneEnabled(!micOn);
+    setMicOn(!micOn);
+  };
+
+  const toggleCamera = async () => {
+    await room.localParticipant.setCameraEnabled(!cameraOn);
+    setCameraOn(!cameraOn);
+  };
+
+  const toggleScreenShare = async () => {
+    await room.localParticipant.setScreenShareEnabled(!screenSharing);
+    setScreenSharing(!screenSharing);
+  };
+
+  return (
+    <div className="video-controls">
+      <button className="control-btn" onClick={toggleMic}>
+        {micOn ? 'Mute' : 'Unmute'}
+      </button>
+      <button className="control-btn" onClick={toggleCamera}>
+        {cameraOn ? 'Camera Off' : 'Camera On'}
+      </button>
+      {isTeacher && (
+        <button className="control-btn" onClick={toggleScreenShare}>
+          {screenSharing ? 'Stop Share' : 'Share Screen'}
+        </button>
+      )}
+      <button className="leave-btn" onClick={onLeave}>
+        Leave
+      </button>
+    </div>
+  );
+}
+
+// Inner room UI
 function RoomUI({ isTeacher, onLeave }) {
   const tracks = useTracks(
     [
@@ -48,50 +89,8 @@ function RoomUI({ isTeacher, onLeave }) {
 
       <RoomAudioRenderer />
 
-      <div className="video-controls">
-        {isTeacher && <TeacherControls />}
-        <button className="leave-btn" onClick={onLeave}>
-          Leave
-        </button>
-      </div>
+      <RoomControls isTeacher={isTeacher} onLeave={onLeave} />
     </div>
-  );
-}
-
-// Teacher-only controls: mute, camera, screen share
-function TeacherControls() {
-  const room = useRoomContext();
-  const [micOn, setMicOn] = useState(true);
-  const [cameraOn, setCameraOn] = useState(true);
-  const [screenSharing, setScreenSharing] = useState(false);
-
-  const toggleMic = async () => {
-    await room.localParticipant.setMicrophoneEnabled(!micOn);
-    setMicOn(!micOn);
-  };
-
-  const toggleCamera = async () => {
-    await room.localParticipant.setCameraEnabled(!cameraOn);
-    setCameraOn(!cameraOn);
-  };
-
-  const toggleScreenShare = async () => {
-    await room.localParticipant.setScreenShareEnabled(!screenSharing);
-    setScreenSharing(!screenSharing);
-  };
-
-  return (
-    <>
-      <button className="control-btn" onClick={toggleMic}>
-        {micOn ? 'Mute' : 'Unmute'}
-      </button>
-      <button className="control-btn" onClick={toggleCamera}>
-        {cameraOn ? 'Camera Off' : 'Camera On'}
-      </button>
-      <button className="control-btn" onClick={toggleScreenShare}>
-        {screenSharing ? 'Stop Share' : 'Share Screen'}
-      </button>
-    </>
   );
 }
 
@@ -106,7 +105,6 @@ export default function VideoRoom() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Fetch LiveKit token from backend
   useEffect(() => {
     async function fetchToken() {
       try {
@@ -171,8 +169,8 @@ export default function VideoRoom() {
       token={token}
       serverUrl={LIVEKIT_URL}
       connect={true}
-      video={isTeacher}
-      audio={isTeacher}
+      video={true}
+      audio={true}
       onDisconnected={handleLeave}
       style={{ height: '100vh' }}
     >

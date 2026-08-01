@@ -23,8 +23,8 @@ router.post('/token', async (req, res) => {
     at.addGrant({
       roomJoin: true,
       room: roomName,
-      canPublish: role === 'teacher',      // only teacher can publish video/audio
-      canSubscribe: true,                   // everyone can watch
+      canPublish: true,     
+      canSubscribe: true,                   
       canPublishData: true,
     });
 
