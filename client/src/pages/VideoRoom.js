@@ -62,6 +62,9 @@ function RoomControls({ isTeacher, onLeave }) {
 
 // Inner room UI
 function RoomUI({ isTeacher, onLeave }) {
+  // onlySubscribed: false + withPlaceholder: true means every participant's
+  // camera slot renders (placeholder until their video track is published),
+  // so teacher AND students all show up here once they publish.
   const tracks = useTracks(
     [
       { source: Track.Source.Camera, withPlaceholder: true },
@@ -165,6 +168,7 @@ export default function VideoRoom() {
   }
 
   return (
+    
     <LiveKitRoom
       token={token}
       serverUrl={LIVEKIT_URL}
