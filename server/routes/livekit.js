@@ -5,8 +5,6 @@ const { AccessToken } = require('livekit-server-sdk');
 const LIVEKIT_API_KEY = process.env.LIVEKIT_API_KEY || 'devkey';
 const LIVEKIT_API_SECRET = process.env.LIVEKIT_API_SECRET || 'secret';
 
-// POST /api/livekit/token
-// Body: { roomName, participantName, role }
 router.post('/token', async (req, res) => {
   try {
     const { roomName, participantName, role } = req.body;
@@ -23,13 +21,12 @@ router.post('/token', async (req, res) => {
     at.addGrant({
       roomJoin: true,
       room: roomName,
-      canPublish: true,     
-      canSubscribe: true,                   
+      canPublish: true,
+      canSubscribe: true,
       canPublishData: true,
     });
 
     const token = await at.toJwt();
-
     res.json({ token });
 
   } catch (err) {
