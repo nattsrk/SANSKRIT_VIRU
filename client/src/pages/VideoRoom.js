@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
@@ -10,10 +10,9 @@ import {
   VideoTrack,
   ParticipantName,
   useRoomContext,
-  useParticipants,
 } from '@livekit/components-react';
 import '@livekit/components-styles';
-import { Track } from 'livekit-client';
+import { Track, RoomEvent } from 'livekit-client';
 import './VideoRoom.css';
 import { API_BASE } from '../config';
 
@@ -28,6 +27,23 @@ function decodeJwtPayload(token) {
   } catch {
     return null;
   }
+}
+
+// Returns true if a LiveKit participant is the teacher, based on identity
+// prefix or metadata set when the token was minted server-side.
+function participantIsTeacher(participant) {
+  if (!participant) return false;
+  if (participant.identity?.startsWith('teacher-')) return true;
+  if (participant.metadata) {
+    try {
+      const meta = JSON.parse(participant.metadata);
+      if (meta.role === 'teacher') return true;
+    } catch {
+      // metadata wasn't JSON — fall back to substring check
+      if (participant.metadata.includes('"role":"teacher"')) return true;
+    }
+  }
+  return false;
 }
 
 // Controls for all participants
@@ -128,9 +144,9 @@ function RoomControls({ isTeacher, onLeave }) {
   );
 }
 
-// Inner room UI — also watches for teacher leaving
+// Inner room UI — also watches for the teacher disconnecting
 function RoomUI({ isTeacher, onLeave }) {
-  const participants = useParticipants();
+  const room = useRoomContext();
 
   const tracks = useTracks(
     [
@@ -140,14 +156,25 @@ function RoomUI({ isTeacher, onLeave }) {
     { onlySubscribed: false }
   );
 
-  // When teacher leaves, redirect all students automatically
+  // Students: end the call the moment the teacher's participant disconnects.
+  // This reacts to the actual LiveKit event rather than a participant count,
+  // so it can't misfire on join (before data has synced) or when a
+  // different student leaves.
   useEffect(() => {
-    if (!isTeacher && participants.length === 1) {
-      // Only the local participant (student) remains — teacher has left
-      alert('The teacher has ended the class.');
-      onLeave();
-    }
-  }, [participants, isTeacher, onLeave]);
+    if (isTeacher) return;
+
+    const handleParticipantDisconnected = (participant) => {
+      if (participantIsTeacher(participant)) {
+        alert('The teacher has ended the class.');
+        onLeave();
+      }
+    };
+
+    room.on(RoomEvent.ParticipantDisconnected, handleParticipantDisconnected);
+    return () => {
+      room.off(RoomEvent.ParticipantDisconnected, handleParticipantDisconnected);
+    };
+  }, [room, isTeacher, onLeave]);
 
   return (
     <div className="video-room">
