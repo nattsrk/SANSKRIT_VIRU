@@ -10,6 +10,7 @@ import {
   VideoTrack,
   ParticipantName,
   useRoomContext,
+  useParticipants,
 } from '@livekit/components-react';
 import '@livekit/components-styles';
 import { Track } from 'livekit-client';
@@ -18,50 +19,119 @@ import { API_BASE } from '../config';
 
 const LIVEKIT_URL = process.env.REACT_APP_LIVEKIT_URL || 'ws://localhost:7880';
 
+// Decodes a JWT payload client-side (for logging only)
+function decodeJwtPayload(token) {
+  try {
+    const payload = token.split('.')[1];
+    const json = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+    return JSON.parse(json);
+  } catch {
+    return null;
+  }
+}
+
 // Controls for all participants
 function RoomControls({ isTeacher, onLeave }) {
   const room = useRoomContext();
-  const [micOn, setMicOn] = useState(true);
-  const [cameraOn, setCameraOn] = useState(true);
+  const [micOn, setMicOn] = useState(false);
+  const [cameraOn, setCameraOn] = useState(false);
   const [screenSharing, setScreenSharing] = useState(false);
+  const [mediaError, setMediaError] = useState(null);
+
+  // Prime browser camera/mic permission on mount without publishing
+  useEffect(() => {
+    let stream;
+    (async () => {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        stream.getTracks().forEach((t) => t.stop());
+      } catch (err) {
+        console.error('Initial permission request failed:', err.name, err.message);
+      }
+    })();
+    return () => {
+      if (stream) stream.getTracks().forEach((t) => t.stop());
+    };
+  }, []);
 
   const toggleMic = async () => {
-    await room.localParticipant.setMicrophoneEnabled(!micOn);
-    setMicOn(!micOn);
+    try {
+      await room.localParticipant.setMicrophoneEnabled(!micOn);
+      setMicOn(!micOn);
+      setMediaError(null);
+    } catch (err) {
+      console.error('Microphone error:', err.name, err.message);
+      setMediaError(
+        err.name === 'NotAllowedError'
+          ? 'Microphone permission was denied. Check your browser site settings.'
+          : err.name === 'NotFoundError'
+          ? 'No microphone was found on this device.'
+          : err.name === 'NotReadableError'
+          ? 'Microphone is already in use by another app or tab.'
+          : `Microphone error: ${err.message}`
+      );
+    }
   };
 
   const toggleCamera = async () => {
-    await room.localParticipant.setCameraEnabled(!cameraOn);
-    setCameraOn(!cameraOn);
+    try {
+      await room.localParticipant.setCameraEnabled(!cameraOn);
+      setCameraOn(!cameraOn);
+      setMediaError(null);
+    } catch (err) {
+      console.error('Camera error:', err.name, err.message);
+      setMediaError(
+        err.name === 'NotAllowedError'
+          ? 'Camera permission was denied. Check your browser site settings.'
+          : err.name === 'NotFoundError'
+          ? 'No camera was found on this device.'
+          : err.name === 'NotReadableError'
+          ? 'Camera is already in use by another app or tab.'
+          : `Camera error: ${err.message}`
+      );
+    }
   };
 
   const toggleScreenShare = async () => {
-    await room.localParticipant.setScreenShareEnabled(!screenSharing);
-    setScreenSharing(!screenSharing);
+    try {
+      await room.localParticipant.setScreenShareEnabled(!screenSharing);
+      setScreenSharing(!screenSharing);
+    } catch (err) {
+      console.error('Screen share error:', err.name, err.message);
+    }
   };
 
   return (
-    <div className="video-controls">
-      <button className="control-btn" onClick={toggleMic}>
-        {micOn ? 'Mute' : 'Unmute'}
-      </button>
-      <button className="control-btn" onClick={toggleCamera}>
-        {cameraOn ? 'Camera Off' : 'Camera On'}
-      </button>
-      {isTeacher && (
-        <button className="control-btn" onClick={toggleScreenShare}>
-          {screenSharing ? 'Stop Share' : 'Share Screen'}
-        </button>
+    <div className="video-controls-wrapper">
+      {mediaError && (
+        <div className="media-error-banner" role="alert">
+          {mediaError}
+        </div>
       )}
-      <button className="leave-btn" onClick={onLeave}>
-        Leave
-      </button>
+      <div className="video-controls">
+        <button className="control-btn" onClick={toggleMic}>
+          {micOn ? 'Mute' : 'Turn On Mic'}
+        </button>
+        <button className="control-btn" onClick={toggleCamera}>
+          {cameraOn ? 'Camera Off' : 'Turn On Camera'}
+        </button>
+        {isTeacher && (
+          <button className="control-btn" onClick={toggleScreenShare}>
+            {screenSharing ? 'Stop Share' : 'Share Screen'}
+          </button>
+        )}
+        <button className="leave-btn" onClick={onLeave}>
+          Leave
+        </button>
+      </div>
     </div>
   );
 }
 
-// Inner room UI
+// Inner room UI — also watches for teacher leaving
 function RoomUI({ isTeacher, onLeave }) {
+  const participants = useParticipants();
+
   const tracks = useTracks(
     [
       { source: Track.Source.Camera, withPlaceholder: true },
@@ -69,6 +139,15 @@ function RoomUI({ isTeacher, onLeave }) {
     ],
     { onlySubscribed: false }
   );
+
+  // When teacher leaves, redirect all students automatically
+  useEffect(() => {
+    if (!isTeacher && participants.length === 1) {
+      // Only the local participant (student) remains — teacher has left
+      alert('The teacher has ended the class.');
+      onLeave();
+    }
+  }, [participants, isTeacher, onLeave]);
 
   return (
     <div className="video-room">
@@ -126,6 +205,8 @@ export default function VideoRoom() {
 
         if (data.token) {
           setToken(data.token);
+          const payload = decodeJwtPayload(data.token);
+          console.log('[LiveKit token grant]', payload?.video || payload);
         } else {
           setError(data.error || 'Failed to get room token');
         }
@@ -169,9 +250,15 @@ export default function VideoRoom() {
       token={token}
       serverUrl={LIVEKIT_URL}
       connect={true}
-      video={true}
-      audio={true}
+      video={false}
+      audio={false}
       onDisconnected={handleLeave}
+      onMediaDeviceFailure={(failure) => {
+        console.error('Media device failure:', failure);
+      }}
+      onError={(err) => {
+        console.error('LiveKitRoom error:', err.name, err.message);
+      }}
       style={{ height: '100vh' }}
     >
       <RoomUI isTeacher={isTeacher} onLeave={handleLeave} />
