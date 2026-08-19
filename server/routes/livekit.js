@@ -13,8 +13,13 @@ router.post('/token', async (req, res) => {
       return res.status(400).json({ error: 'roomName and participantName are required' });
     }
 
+    // Normalize role and tag it into metadata so clients can tell
+    // teacher apart from student via participant.metadata.
+    const normalizedRole = role === 'teacher' ? 'teacher' : 'student';
+
     const at = new AccessToken(LIVEKIT_API_KEY, LIVEKIT_API_SECRET, {
       identity: participantName,
+      metadata: JSON.stringify({ role: normalizedRole }),
       ttl: '2h',
     });
 
