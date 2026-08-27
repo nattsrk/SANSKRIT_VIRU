@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
@@ -12,41 +12,32 @@ import {
   useRoomContext,
 } from '@livekit/components-react';
 import '@livekit/components-styles';
-import { Track, RoomEvent } from 'livekit-client';
+import { Track, RoomEvent, ConnectionState } from 'livekit-client';
 import './VideoRoom.css';
 import { API_BASE } from '../config';
 
-const LIVEKIT_URL = process.env.REACT_APP_LIVEKIT_URL || 'ws://localhost:7880';
-
-// Decodes a JWT payload client-side (for logging only)
-function decodeJwtPayload(token) {
-  try {
-    const payload = token.split('.')[1];
-    const json = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
-    return JSON.parse(json);
-  } catch {
-    return null;
-  }
+// Required env var — no hardcoded fallback in production. A missing var
+// should be obvious immediately, not silently pointed at localhost.
+const LIVEKIT_URL = process.env.REACT_APP_LIVEKIT_URL;
+if (!LIVEKIT_URL) {
+  console.error('REACT_APP_LIVEKIT_URL is not set.');
 }
 
-// Returns true if a LiveKit participant is the teacher, based on identity
-// prefix or metadata set when the token was minted server-side.
+/**
+ * Returns true if a LiveKit participant is the teacher, based on the
+ * `role` metadata the backend sets when it mints the access token
+ * (see server/routes/livekit.js).
+ */
 function participantIsTeacher(participant) {
-  if (!participant) return false;
-  if (participant.identity?.startsWith('teacher-')) return true;
-  if (participant.metadata) {
-    try {
-      const meta = JSON.parse(participant.metadata);
-      if (meta.role === 'teacher') return true;
-    } catch {
-      // metadata wasn't JSON — fall back to substring check
-      if (participant.metadata.includes('"role":"teacher"')) return true;
-    }
+  if (!participant?.metadata) return false;
+  try {
+    return JSON.parse(participant.metadata).role === 'teacher';
+  } catch {
+    return false;
   }
-  return false;
 }
 
-// Controls for all participants
+// Controls for all participants: mic, camera, screen share (teacher only), leave.
 function RoomControls({ isTeacher, onLeave }) {
   const room = useRoomContext();
   const [micOn, setMicOn] = useState(false);
@@ -54,7 +45,8 @@ function RoomControls({ isTeacher, onLeave }) {
   const [screenSharing, setScreenSharing] = useState(false);
   const [mediaError, setMediaError] = useState(null);
 
-  // Prime browser camera/mic permission on mount without publishing
+  // Prime browser camera/mic permission on mount without publishing,
+  // so the first real toggle doesn't stall on a permission prompt.
   useEffect(() => {
     let stream;
     (async () => {
@@ -70,6 +62,19 @@ function RoomControls({ isTeacher, onLeave }) {
     };
   }, []);
 
+  const describeMediaError = (err) => {
+    switch (err.name) {
+      case 'NotAllowedError':
+        return 'Permission was denied. Check your browser site settings.';
+      case 'NotFoundError':
+        return 'No matching device was found on this device.';
+      case 'NotReadableError':
+        return 'Device is already in use by another app or tab.';
+      default:
+        return `Device error: ${err.message}`;
+    }
+  };
+
   const toggleMic = async () => {
     try {
       await room.localParticipant.setMicrophoneEnabled(!micOn);
@@ -77,15 +82,7 @@ function RoomControls({ isTeacher, onLeave }) {
       setMediaError(null);
     } catch (err) {
       console.error('Microphone error:', err.name, err.message);
-      setMediaError(
-        err.name === 'NotAllowedError'
-          ? 'Microphone permission was denied. Check your browser site settings.'
-          : err.name === 'NotFoundError'
-          ? 'No microphone was found on this device.'
-          : err.name === 'NotReadableError'
-          ? 'Microphone is already in use by another app or tab.'
-          : `Microphone error: ${err.message}`
-      );
+      setMediaError(describeMediaError(err));
     }
   };
 
@@ -96,15 +93,7 @@ function RoomControls({ isTeacher, onLeave }) {
       setMediaError(null);
     } catch (err) {
       console.error('Camera error:', err.name, err.message);
-      setMediaError(
-        err.name === 'NotAllowedError'
-          ? 'Camera permission was denied. Check your browser site settings.'
-          : err.name === 'NotFoundError'
-          ? 'No camera was found on this device.'
-          : err.name === 'NotReadableError'
-          ? 'Camera is already in use by another app or tab.'
-          : `Camera error: ${err.message}`
-      );
+      setMediaError(describeMediaError(err));
     }
   };
 
@@ -144,9 +133,25 @@ function RoomControls({ isTeacher, onLeave }) {
   );
 }
 
-// Inner room UI — also watches for the teacher disconnecting
+// Small banner shown while LiveKit is reconnecting after a network drop.
+// The LiveKit SDK handles the actual reconnect (ICE restart / resume)
+// automatically — this just surfaces that state to the user instead of
+// leaving them staring at a frozen video with no explanation.
+function ConnectionBanner({ state }) {
+  if (state === ConnectionState.Reconnecting) {
+    return (
+      <div className="connection-banner reconnecting" role="status">
+        Connection lost — reconnecting...
+      </div>
+    );
+  }
+  return null;
+}
+
+// Inner room UI — renders tracks/controls and watches for the teacher disconnecting.
 function RoomUI({ isTeacher, onLeave }) {
   const room = useRoomContext();
+  const [connectionState, setConnectionState] = useState(room.state);
 
   const tracks = useTracks(
     [
@@ -156,10 +161,20 @@ function RoomUI({ isTeacher, onLeave }) {
     { onlySubscribed: false }
   );
 
+  // Track reconnect state so we can show a banner instead of a silently
+  // frozen call during a network blip.
+  useEffect(() => {
+    const handleStateChange = (state) => setConnectionState(state);
+    room.on(RoomEvent.ConnectionStateChanged, handleStateChange);
+    return () => {
+      room.off(RoomEvent.ConnectionStateChanged, handleStateChange);
+    };
+  }, [room]);
+
   // Students: end the call the moment the teacher's participant disconnects.
-  // This reacts to the actual LiveKit event rather than a participant count,
-  // so it can't misfire on join (before data has synced) or when a
-  // different student leaves.
+  // Reacts to the actual LiveKit event rather than a participant count, so
+  // it can't misfire on join (before data has synced) or when a different
+  // student leaves.
   useEffect(() => {
     if (isTeacher) return;
 
@@ -179,6 +194,8 @@ function RoomUI({ isTeacher, onLeave }) {
   return (
     <div className="video-room">
       <h2 className="video-title">Live Classroom</h2>
+
+      <ConnectionBanner state={connectionState} />
 
       <div className="video-grid">
         <TrackLoop tracks={tracks}>
@@ -200,7 +217,7 @@ function RoomUI({ isTeacher, onLeave }) {
   );
 }
 
-// Main component
+// Main component: fetches a token, connects to the room, renders RoomUI.
 export default function VideoRoom() {
   const { roomId } = useParams();
   const navigate = useNavigate();
@@ -219,7 +236,7 @@ export default function VideoRoom() {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${authToken}`,
+            Authorization: `Bearer ${authToken}`,
           },
           body: JSON.stringify({
             roomName: roomId,
@@ -232,8 +249,6 @@ export default function VideoRoom() {
 
         if (data.token) {
           setToken(data.token);
-          const payload = decodeJwtPayload(data.token);
-          console.log('[LiveKit token grant]', payload?.video || payload);
         } else {
           setError(data.error || 'Failed to get room token');
         }
@@ -279,6 +294,10 @@ export default function VideoRoom() {
       connect={true}
       video={false}
       audio={false}
+      // LiveKit's client SDK retries dropped connections and resumes
+      // published/subscribed tracks automatically. onDisconnected only
+      // fires for a final, non-recoverable disconnect (explicit leave,
+      // kicked, or reconnect attempts exhausted) — not a transient blip.
       onDisconnected={handleLeave}
       onMediaDeviceFailure={(failure) => {
         console.error('Media device failure:', failure);
